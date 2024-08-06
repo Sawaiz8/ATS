@@ -10,7 +10,7 @@ def home_page():
     st.set_page_config(
         layout="wide",
     )
-
+    
     # Read IT data from CSV file
     it_data = pd.read_csv("./applicant_data/it_applicant_data.csv")
     chess_data = pd.read_csv("./applicant_data/sel_applicant_data.csv")
