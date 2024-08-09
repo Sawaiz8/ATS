@@ -1,16 +1,20 @@
+import os
+from dotenv import load_dotenv
 import streamlit as st
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+
+load_dotenv()
+
 
 def home_page():
-    import numpy as np
-    import pandas as pd
-    import streamlit as st
-    import plotly.graph_objects as go
-    import plotly.express as px
 
     st.set_page_config(
         layout="wide",
     )
-    
+
     # Read IT data from CSV file
     it_data = pd.read_csv("./applicant_data/it_applicant_data.csv")
     chess_data = pd.read_csv("./applicant_data/sel_applicant_data.csv")
@@ -124,8 +128,8 @@ def home_page():
         map_df["lat"] = map_df["city_address"].apply(lambda x: get_coordinates(x)[0])
         map_df["lon"] = map_df["city_address"].apply(lambda x: get_coordinates(x)[1])
 
-        # Read mapbox access token from file: mapbox_token
-        mapbox_access_token = open("mapbox_token", "r").read()
+        # Read mapbox access token from env
+        MAPBOX_ACCESS_TOKEN = os.getenv("MAPBOX_ACCESS_TOKEN")
 
         map_fig = go.Figure(go.Scattermapbox(
             lon = map_df["lon"], lat = map_df["lat"],
@@ -142,7 +146,7 @@ def home_page():
 
         map_fig.update_layout(
         mapbox=dict(
-            accesstoken=mapbox_access_token,
+            accesstoken=MAPBOX_ACCESS_TOKEN,
             center=dict(
                 lat=31.5204,
                 lon=74.3587

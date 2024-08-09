@@ -1,0 +1,6 @@
+numpy
+pandas
+streamlit
+streamlit-pdf-reader
+plotly
+python-dotenv

@@ -1,8 +1,12 @@
+import os
+from dotenv import load_dotenv
 import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
+
+load_dotenv()
 
 st.set_page_config(
     layout="wide",
@@ -117,7 +121,7 @@ with tab3:
     map_df["lon"] = map_df["city_address"].apply(lambda x: get_coordinates(x)[1])
 
     # Read mapbox access token from file: mapbox_token
-    mapbox_access_token = open("mapbox_token", "r").read()
+    MAPBOX_ACCESS_TOKEN = os.getenv("MAPBOX_ACCESS_TOKEN")
 
     map_fig = go.Figure(go.Scattermapbox(
         lon = map_df["lon"], lat = map_df["lat"],
@@ -134,7 +138,7 @@ with tab3:
 
     map_fig.update_layout(
     mapbox=dict(
-        accesstoken=mapbox_access_token,
+        accesstoken=MAPBOX_ACCESS_TOKEN,
         center=dict(
             lat=31.5204,
             lon=74.3587
