@@ -16,6 +16,10 @@ def it_applicants():
     )
     if applicant_dropdown is not None:
         current_applicant = it_data[it_data.name == applicant_dropdown]
+        status_col, accept_col, reject_col = st.columns(3, gap="small")
+        status_col.metric("Application Status", current_applicant["applicant_status"].values[0])
+        accept_button = accept_col.button(label="Accept")
+        reject_button = reject_col.button(label="Reject")
         col_1, col_2, col_3= st.columns(3)
         col_1.metric("Name", applicant_dropdown)
         col_1.metric("NGO Experience", current_applicant["ngo_work"].values[0])
@@ -53,3 +57,13 @@ def it_applicants():
         pdf_source=current_applicant["path_to_pdf"].values[0]
         if pdf_source:
             pdf_reader("./database/session_1/applicants_resume/sample.pdf")
+        if accept_button:
+            it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
+            st.session_state["it_data"] = it_data
+            csv_files = pd.DataFrame(st.session_state["current_session"])
+            it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
+        elif reject_button:
+            it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
+            st.session_state["it_data"] = it_data
+            csv_files = pd.DataFrame(st.session_state["current_session"])
+            it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")

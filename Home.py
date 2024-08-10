@@ -31,12 +31,16 @@ def intro_page():
 
 
 def home_page():
+    st.write(st.session_state)
     # Read form data of relevant session
     csv_files = pd.DataFrame(st.session_state["current_session"])
-    st.session_state["it_data"] = pd.read_csv(f"./database/{csv_files[csv_files.category == "IT"].sheet_link.values[0]}")
-    st.session_state["sel_data"] = pd.read_csv(f"./database/{csv_files[csv_files.category == "CHESS"].sheet_link.values[0]}")
-    st.session_state["chess_data"] = pd.read_csv(f"./database/{csv_files[csv_files.category == "SEL"].sheet_link.values[0]}")
+    it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "IT"].sheet_link.values[0]}")
+    sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "CHESS"].sheet_link.values[0]}")
+    chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "SEL"].sheet_link.values[0]}")
 
+    st.session_state["it_data"] = it_data
+    st.session_state["sel_data"] = sel_data
+    st.session_state["chess_data"] = chess_data
 
     app_data = [st.session_state["it_data"], st.session_state["chess_data"], st.session_state["sel_data"]]
     app_data = pd.concat(app_data)
@@ -177,6 +181,9 @@ def home_page():
 
 if "current_page" not in st.session_state.keys():
     st.session_state["current_page"] = "Intro"
+
+if st.session_state["current_page"] == "Intro":
+    intro_page()
 session_selector = st.sidebar.selectbox(
     "Select Session",
     sessions.session_name.unique(),
@@ -200,8 +207,6 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
     chess_button = col3.button(label="CHESS", use_container_width=True)
     indiv_toggle = st.sidebar.toggle("Individual Applicants")
 
-
-
     if it_button:
         st.session_state["current_applicant"] = "IT"
     elif sel_button:
@@ -212,11 +217,22 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
         home_page()
     if indiv_toggle:
         if st.session_state["current_applicant"] == "IT":
+            current_data = st.session_state["it_data"]
             it_applicants()
         elif st.session_state["current_applicant"] == "SEL":
+            current_data = st.session_state["sel_data"]
             sel_applicants()
         elif st.session_state["current_applicant"] == "CHESS":
+            current_data = st.session_state["chess_data"]
             chess_applicants()
+        if st.sidebar.button(label="Accepted Applicants") or st.session_state["current_applicant"] == "Accepted":
+            st.session_state["current_applicant"] = "Accepted"
+            st.dataframe(current_data[current_data.applicant_status == "Accepted"]);
+        if st.sidebar.button(label="Rejected Applicants") or st.session_state["current_applicant"] == "Rejected":
+            st.session_state["current_applicant"] = "Rejected"
+            st.dataframe(current_data[current_data.applicant_status == "Rejected"]);
+
+
     else:
         if it_button:
             st.session_state["current_applicant"] = "IT"
@@ -227,6 +243,8 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
         elif chess_button:
             st.session_state["current_applicant"] = "CHESS"
             chess_home()
+
+
 st.sidebar.divider()
 st.sidebar.caption("HR")
 if st.sidebar.button(label="Project Management") or st.session_state["current_page"] == "HR":
