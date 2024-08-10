@@ -6,21 +6,39 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
+from pages.IT_Home import it_home
+from pages.Chess_Home import chess_home
+from pages.SEL_Home import sel_home
+
+from pages.IT_Applicants import it_applicants
+from pages.SEL_Applicants import sel_applicants
+from pages.Chess_Applicants import chess_applicants
+
+from pages.hr import hr_page
+
 load_dotenv()
+
+st.set_page_config(
+    layout="wide",
+)
+
+sessions = pd.read_csv("./database/sessions.csv")
+
+def intro_page():
+    st.title("Welcome to Daadras ATS")
+
+    st.markdown("Choose a session to analyze and manage applications.")
 
 
 def home_page():
+    # Read form data of relevant session
+    csv_files = pd.DataFrame(st.session_state["current_session"])
+    st.session_state["it_data"] = pd.read_csv(f"./database/{csv_files[csv_files.category == "IT"].sheet_link.values[0]}")
+    st.session_state["sel_data"] = pd.read_csv(f"./database/{csv_files[csv_files.category == "CHESS"].sheet_link.values[0]}")
+    st.session_state["chess_data"] = pd.read_csv(f"./database/{csv_files[csv_files.category == "SEL"].sheet_link.values[0]}")
 
-    st.set_page_config(
-        layout="wide",
-    )
 
-    # Read IT data from CSV file
-    it_data = pd.read_csv("./applicant_data/it_applicant_data.csv")
-    chess_data = pd.read_csv("./applicant_data/sel_applicant_data.csv")
-    sel_data = pd.read_csv("./applicant_data/chess_applicant_data.csv")
-
-    app_data = [it_data, chess_data, sel_data]
+    app_data = [st.session_state["it_data"], st.session_state["chess_data"], st.session_state["sel_data"]]
     app_data = pd.concat(app_data)
     tab1, tab2, tab3 = st.tabs(["🔎 Overview", "📈 Charts", "📍 Map"])
     with tab1:
@@ -157,24 +175,64 @@ def home_page():
         )
         st.plotly_chart(map_fig)
 
+if "current_page" not in st.session_state.keys():
+    st.session_state["current_page"] = "Intro"
+session_selector = st.sidebar.selectbox(
+    "Select Session",
+    sessions.session_name.unique(),
+    index=None,
+    key='selection',
+)
+accept_button = st.sidebar.button("Accept", type="primary")
+
+st.session_state["sessions"] = sessions
+st.session_state["project_sessions"] = sessions.session_name.unique()
+
+if accept_button:
+    st.session_state["current_page"] = "Applicant"
+if session_selector is not None and st.session_state["current_page"] == "Applicant":
+    st.session_state["current_session"] = sessions[sessions.session_name == session_selector]
+    st.sidebar.divider()
+    st.sidebar.caption("Home")
+    col1, col2, col3 = st.sidebar.columns(3)
+    it_button = col1.button(label="IT", use_container_width=True)
+    sel_button = col2.button(label="SEL", use_container_width=True)
+    chess_button = col3.button(label="CHESS", use_container_width=True)
+    indiv_toggle = st.sidebar.toggle("Individual Applicants")
 
 
-pages = {
-    "": [st.Page(home_page, title="Home", icon=":material/home:",default=True)],
-    "IT":
-        [
-            st.Page("pages/it/IT_Home.py", title="IT Analytics"),
-            st.Page("pages/it/IT_Applicants.py", title="Individual Applicants"),
-        ],
-    "SEL": [
-        st.Page("pages/sel/SEL_Home.py", title="SEL Analytics"),
-        st.Page("pages/sel/SEL_Applicants.py", title="Individual Applicants"),
-    ],
-    "CHESS": [
-        st.Page("pages/chess/Chess_Home.py", title="Chess Analytics"),
-        st.Page("pages/chess/Chess_Applicants.py", title="Individual Applicants")
-    ]
-}
 
-pg = st.navigation(pages, position="sidebar")
-pg.run()
+    if it_button:
+        st.session_state["current_applicant"] = "IT"
+    elif sel_button:
+        st.session_state["current_applicant"] = "SEL"
+    elif chess_button:
+        st.session_state["current_applicant"] = "CHESS"
+    elif not indiv_toggle:
+        home_page()
+    if indiv_toggle:
+        if st.session_state["current_applicant"] == "IT":
+            it_applicants()
+        elif st.session_state["current_applicant"] == "SEL":
+            sel_applicants()
+        elif st.session_state["current_applicant"] == "CHESS":
+            chess_applicants()
+    else:
+        if it_button:
+            st.session_state["current_applicant"] = "IT"
+            it_home()
+        elif sel_button:
+            st.session_state["current_applicant"] = "SEL"
+            sel_home()
+        elif chess_button:
+            st.session_state["current_applicant"] = "CHESS"
+            chess_home()
+st.sidebar.divider()
+st.sidebar.caption("HR")
+if st.sidebar.button(label="Project Management") or st.session_state["current_page"] == "HR":
+    st.session_state["current_page"] = "HR"
+    hr_page()
+
+def retrieve_csv():
+    pass
+update_csvs = st.sidebar.button("Update Data", disabled=True, on_click=retrieve_csv)
