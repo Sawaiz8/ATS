@@ -1,11 +1,13 @@
 import numpy as np
 import pandas as pd
 import streamlit as st
+from streamlit_extras.row import row
 from streamlit_pdf_reader import pdf_reader
 
 
 def sel_applicants():
     # Read SEL data from CSV file
+    csv_files = pd.DataFrame(st.session_state["current_session"])
     sel_data = st.session_state["sel_data"]
     sel_data["path_to_pdf"] = "./database/session_1/applicant_resume/sample.pdf"
 
@@ -16,10 +18,6 @@ def sel_applicants():
     )
     if applicant_dropdown is not None:
         current_applicant = sel_data[sel_data.name == applicant_dropdown]
-        status_col, accept_col, reject_col = st.columns(3, gap="small")
-        status_col.metric("Application Status", current_applicant["applicant_status"].values[0])
-        accept_button = accept_col.button(label="Accept")
-        reject_button = reject_col.button(label="Reject")
         col_1, col_2, col_3= st.columns(3)
         col_1.metric("Name", applicant_dropdown)
         col_1.metric("NGO Experience", current_applicant["ngo_work"].values[0])
@@ -37,12 +35,12 @@ def sel_applicants():
 
         st.metric("Institution", current_applicant["institute"].values[0])
         st.metric("Transport", current_applicant["transport"].values[0])
+        st.metric("Application Status", current_applicant["applicant_status"].values[0])
 
         with st.expander("Contact Details"):
             col_a, col_b = st.columns(2)
             col_a.metric("Personal", f"0{current_applicant['phone_number'].values[0]}")
             col_a.metric("Instagram",  f"{current_applicant['insta_id'].values[0]}")
-            col_b.metric("Emergency", f"0{current_applicant['emergency_contact'].values[0]}")
             col_b.metric("LinkedIn",  f"{current_applicant['linkedin_id'].values[0]}")
             st.markdown(f"***email***: {current_applicant['email'].values[0]}")
             st.markdown(f"***Has Discord?***: {current_applicant['has_discord'].values[0]}")
@@ -59,15 +57,20 @@ def sel_applicants():
         container_3.markdown(current_applicant["other_skills"].values[0])
         pdf_source=current_applicant["path_to_pdf"].values[0]
         if pdf_source:
-            pdf_reader(pdf_source)
+            pdf_reader("./database/session_1/applicants_resume/sample.pdf")
 
+        action_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
+        action_row.empty()
+        accept_button = action_row.button(label="Accept")
+        reject_button = action_row.button(label="Reject")
+        action_row.empty()
         if accept_button:
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
+            st.toast('Applicant Accepted', icon="❗")
             st.session_state["sel_data"] = sel_data
-            csv_files = pd.DataFrame(st.session_state["current_session"])
-            sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
         elif reject_button:
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
+            st.toast('Applicant Rejected', icon="❗")
             st.session_state["sel_data"] = sel_data
-            csv_files = pd.DataFrame(st.session_state["current_session"])
-            sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+
+        sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")

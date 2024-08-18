@@ -1,6 +1,7 @@
 numpy
 pandas
 streamlit
+streamlit-extras
 streamlit-pdf-reader
 plotly
 python-dotenv

@@ -1,7 +1,7 @@
-,session_name,category,sheet_link
-0,Project Salam 2.0,IT,session_1/applicants_form_data/it_applicant_data.csv
-1,Project Salam 2.0,SEL,session_1/applicants_form_data/sel_applicant_data.csv
-2,Project Salam 2.0,CHESS,session_1/applicants_form_data/chess_applicant_data.csv
-3,Project Salam 3.0,IT,session_2/applicants_form_data/it_applicant_data.csv
-4,Project Salam 3.0,SEL,session_2/applicants_form_data/sel_applicant_data.csv
-5,Project Salam 3.0,CHESS,session_2/applicants_form_data/chess_applicant_data.csv
+,session_name,category,session_number,sheet_link
+0,Project Salam 2.0,IT,session_1,session_1/applicants_form_data/it_applicant_data.csv
+1,Project Salam 2.0,SEL,session_1,session_1/applicants_form_data/sel_applicant_data.csv
+2,Project Salam 2.0,CHESS,session_1,session_1/applicants_form_data/chess_applicant_data.csv
+3,Project Salam 3.0,IT,session_2,session_2/applicants_form_data/it_applicant_data.csv
+4,Project Salam 3.0,SEL,session_2,session_2/applicants_form_data/sel_applicant_data.csv
+5,Project Salam 3.0,CHESS,session_2,session_2/applicants_form_data/chess_applicant_data.csv

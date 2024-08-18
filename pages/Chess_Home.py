@@ -35,7 +35,7 @@ def chess_home():
         university_metric, unemployed_metric, job_metric, ngo_metric = st.columns(4)
         job_metric.metric(label="Have Jobs", value = doing_jobs)
         university_metric.metric(label="University Students", value=university_students)
-        unemployed_metric.metric(label="Are not working", value=not_working)
+        unemployed_metric.metric(label="Not Working", value=not_working)
         ngo_metric.metric(label="Have worked in NGO's", value=ngo_work)
 
     with tab2:
