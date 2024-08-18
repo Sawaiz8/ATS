@@ -14,6 +14,9 @@ from pages.IT_Applicants import it_applicants
 from pages.SEL_Applicants import sel_applicants
 from pages.Chess_Applicants import chess_applicants
 
+from pages.accepted import view_accepted
+from pages.rejected import view_rejected
+
 from pages.hr import hr_page
 
 load_dotenv()
@@ -22,7 +25,7 @@ st.set_page_config(
     layout="wide",
 )
 
-sessions = pd.read_csv("./database/sessions.csv")
+sessions = pd.read_csv("./database/sessions.csv", index_col=0)
 
 def intro_page():
     st.title("Welcome to Daadras ATS")
@@ -31,13 +34,6 @@ def intro_page():
 
 
 def home_page():
-    st.write(st.session_state)
-    # Read form data of relevant session
-    csv_files = pd.DataFrame(st.session_state["current_session"])
-    it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "IT"].sheet_link.values[0]}")
-    sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "CHESS"].sheet_link.values[0]}")
-    chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "SEL"].sheet_link.values[0]}")
-
     st.session_state["it_data"] = it_data
     st.session_state["sel_data"] = sel_data
     st.session_state["chess_data"] = chess_data
@@ -179,33 +175,45 @@ def home_page():
         )
         st.plotly_chart(map_fig)
 
+st.session_state["toggle_individual"] = False
+
 if "current_page" not in st.session_state.keys():
     st.session_state["current_page"] = "Intro"
 
-if st.session_state["current_page"] == "Intro":
-    intro_page()
 session_selector = st.sidebar.selectbox(
     "Select Session",
     sessions.session_name.unique(),
     index=None,
     key='selection',
 )
-accept_button = st.sidebar.button("Accept", type="primary")
+accept_button = st.sidebar.button("Access", type="primary")
 
 st.session_state["sessions"] = sessions
 st.session_state["project_sessions"] = sessions.session_name.unique()
 
 if accept_button:
     st.session_state["current_page"] = "Applicant"
+    intro_page()
 if session_selector is not None and st.session_state["current_page"] == "Applicant":
-    st.session_state["current_session"] = sessions[sessions.session_name == session_selector]
+    st.session_state["current_session"] = sessions[sessions.session_name == session_selector].reset_index()
+
+    # Read form data of relevant session
+    csv_files = pd.DataFrame(st.session_state["current_session"])
+    it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "IT"].sheet_link.values[0]}", index_col=0)
+    sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "CHESS"].sheet_link.values[0]}", index_col=0)
+    chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "SEL"].sheet_link.values[0]}", index_col = 0)
+
     st.sidebar.divider()
-    st.sidebar.caption("Home")
+    home_button = st.sidebar.button(label="Home", use_container_width=True)
+    if home_button:
+        home_page()
+
     col1, col2, col3 = st.sidebar.columns(3)
     it_button = col1.button(label="IT", use_container_width=True)
     sel_button = col2.button(label="SEL", use_container_width=True)
     chess_button = col3.button(label="CHESS", use_container_width=True)
-    indiv_toggle = st.sidebar.toggle("Individual Applicants")
+    indiv_toggle = st.sidebar.toggle("Individual Applicants", disabled=st.session_state["toggle_individual"])
+
 
     if it_button:
         st.session_state["current_applicant"] = "IT"
@@ -213,25 +221,16 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
         st.session_state["current_applicant"] = "SEL"
     elif chess_button:
         st.session_state["current_applicant"] = "CHESS"
-    elif not indiv_toggle:
-        home_page()
-    if indiv_toggle:
+    if indiv_toggle and not home_button:
+
         if st.session_state["current_applicant"] == "IT":
-            current_data = st.session_state["it_data"]
             it_applicants()
         elif st.session_state["current_applicant"] == "SEL":
-            current_data = st.session_state["sel_data"]
             sel_applicants()
         elif st.session_state["current_applicant"] == "CHESS":
-            current_data = st.session_state["chess_data"]
             chess_applicants()
-        if st.sidebar.button(label="Accepted Applicants") or st.session_state["current_applicant"] == "Accepted":
-            st.session_state["current_applicant"] = "Accepted"
-            st.dataframe(current_data[current_data.applicant_status == "Accepted"]);
-        if st.sidebar.button(label="Rejected Applicants") or st.session_state["current_applicant"] == "Rejected":
-            st.session_state["current_applicant"] = "Rejected"
-            st.dataframe(current_data[current_data.applicant_status == "Rejected"]);
-
+        else:
+            it_applicants()
 
     else:
         if it_button:
@@ -243,6 +242,16 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
         elif chess_button:
             st.session_state["current_applicant"] = "CHESS"
             chess_home()
+        else:
+            st.session_state["current_applicant"] = "IT"
+    accepted = st.sidebar.button("Accepted Applicants")
+    rejected = st.sidebar.button("Rejected Applicants")
+
+    if accepted or st.session_state["current_page"] == "accepted_apl":
+        view_accepted(it_data, chess_data, sel_data)
+    if rejected or st.session_state["current_page"] == "rejected_apl":
+        if not indiv_toggle:
+            view_rejected(it_data, chess_data, sel_data)
 
 
 st.sidebar.divider()
@@ -251,6 +260,6 @@ if st.sidebar.button(label="Project Management") or st.session_state["current_pa
     st.session_state["current_page"] = "HR"
     hr_page()
 
-def retrieve_csv():
+def retrieve_data():
     pass
-update_csvs = st.sidebar.button("Update Data", disabled=True, on_click=retrieve_csv)
+update_csvs = st.sidebar.button("Update Data", disabled=True, on_click=retrieve_data)
