@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from os import mkdir
+from shutil import rmtree
 import glob
 
 def save_project(project_name, it_file, chess_file, sel_file):
@@ -68,4 +69,13 @@ def hr_page():
     delete_selector = st.selectbox("Choose a project", st.session_state["project_sessions"], key="delete")
     delete_button = st.button("Delete")
     if delete_selector and delete_button:
-        pass
+        sessions = pd.read_csv("./database/sessions.csv", index_col=0)
+        selected_session_directory = sessions[sessions.session_name == delete_selector].session_number.values[0]
+        try:
+            rmtree(f"./database/{selected_session_directory}")
+            sessions = sessions[sessions.session_name != delete_selector]
+            sessions.to_csv("./database/sessions.csv")
+            st.success("Project Deleted Successfully!")
+        except OSError as e:
+            st.error("Error deleting project!")
+            st.write(e)
