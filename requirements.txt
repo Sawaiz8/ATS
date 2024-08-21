@@ -1,7 +1,7 @@
-numpy
-pandas
-streamlit
-streamlit-extras
-streamlit-pdf-reader
-plotly
-python-dotenv
+numpy==2.0.1
+pandas==2.2.2
+streamlit==1.37.1
+streamlit-extras==0.4.7
+streamlit-pdf-reader==0.0.5
+plotly==5.23.0
+python-dotenv==1.0.1
