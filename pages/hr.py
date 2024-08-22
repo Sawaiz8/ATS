@@ -67,7 +67,9 @@ def hr_page():
 
     st.header("Delete Project")
     delete_selector = st.selectbox("Choose a project", st.session_state["project_sessions"], key="delete")
-    delete_button = st.button("Delete")
+    with st.popover("Delete"):
+        st.error("Are you sure?")
+        delete_button = st.button("Confirm")
     if delete_selector and delete_button:
         sessions = pd.read_csv("./database/sessions.csv", index_col=0)
         selected_session_directory = sessions[sessions.session_name == delete_selector].session_number.values[0]

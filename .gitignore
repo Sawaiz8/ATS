@@ -2,4 +2,4 @@
 ./.ipynb_checkpoints
 ats/
 pyrightconfig.json
-/pages/__pycache__
+./pages/__pycache__/

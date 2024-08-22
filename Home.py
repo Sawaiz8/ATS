@@ -18,13 +18,16 @@ from pages.accepted import view_accepted
 from pages.rejected import view_rejected
 
 from pages.hr import hr_page
+from pages.update_data import update_page
 
 load_dotenv()
-
 st.set_page_config(
     layout="wide",
 )
 
+header_1, header_2 = st.sidebar.columns(2)
+header_1.write("**دادرس**")
+header_2.caption("Daadras ATS")
 sessions = pd.read_csv("./database/sessions.csv", index_col=0)
 
 def intro_page():
@@ -244,8 +247,10 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
             chess_home()
         else:
             st.session_state["current_applicant"] = "IT"
-    accepted = st.sidebar.button("Accepted Applicants")
-    rejected = st.sidebar.button("Rejected Applicants")
+    st.sidebar.caption("Applicants")
+    acc, rej = st.sidebar.columns(2)
+    accepted = acc.button("Accepted", use_container_width=True)
+    rejected = rej.button("Rejected", use_container_width=True)
 
     if accepted or st.session_state["current_page"] == "accepted_apl":
         view_accepted(it_data, chess_data, sel_data)
@@ -260,6 +265,6 @@ if st.sidebar.button(label="Project Management") or st.session_state["current_pa
     st.session_state["current_page"] = "HR"
     hr_page()
 
-def retrieve_data():
-    pass
-update_csvs = st.sidebar.button("Update Data", disabled=True, on_click=retrieve_data)
+if st.sidebar.button(label="Update Data") or st.session_state["current_page"] == "Updater":
+    st.session_state["current_page"] = "Updater"
+    update_page()
