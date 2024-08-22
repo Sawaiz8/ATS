@@ -58,6 +58,10 @@ def hr_page():
     st.subheader("SEL")
     sel_files = st.file_uploader("Upload SEL CSV files", type="csv")
 
+    it_email_prompt = st.text_area(label="IT email prompt",placeholder="IT email prompt", key="it_email_prompt")
+    sel_email_prompt = st.text_area(label="SEL email prompt",placeholder="SEL email prompt", key="sel_email_prompt")
+    chess_email_prompt = st.text_area(label="CHESS email prompt",placeholder="CHESS email prompt", key="chess_email_prompt")
+
     if st.button("Save Project"):
         if new_project_name:
             save_project(new_project_name, it_files, chess_files, sel_files)
