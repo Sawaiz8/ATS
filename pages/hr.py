@@ -4,7 +4,15 @@ from os import mkdir
 from shutil import rmtree
 import glob
 
-def save_project(project_name, it_file, chess_file, sel_file):
+def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_email, sel_email):
+
+    sessions = pd.read_csv("./database/sessions.csv", index_col=0)
+    if project_name in sessions["session_name"]:
+        st.error("Project with same name already exists!")
+        return
+    email_prompts = pd.read_csv("./database/email_prompts.csv")
+    email_prompts.loc[len(email_prompts)] = [project_name, it_email, chess_email, sel_email]
+    email_prompts.to_csv("./database/email_prompts.csv")
     mkdir(f"./database/{project_name}")
     mkdir(f"./database/{project_name}/applicants_form_data")
     mkdir(f"./database/{project_name}/applicants_resume")
@@ -16,9 +24,7 @@ def save_project(project_name, it_file, chess_file, sel_file):
     it.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv")
     chess.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv")
     sel.to_csv(f"./database/{project_name}/applicants_form_data/sel_applicant_data.csv")
-    sessions = pd.read_csv("./database/sessions.csv", index_col=0)
 
-    st.write(sessions)
     sessions.loc[len(sessions.index)] = [project_name, "IT", project_name, f"{project_name}/applicants_form_data/it_applicant_data.csv"]
     sessions.loc[len(sessions.index)] = [project_name, "SEL", project_name, f"{project_name}/applicants_form_data/sel_applicant_data.csv"]
     sessions.loc[len(sessions.index)] = [project_name, "CHESS", project_name, f"{project_name}/applicants_form_data/chess_applicant_data.csv"]
@@ -29,7 +35,21 @@ def save_project(project_name, it_file, chess_file, sel_file):
 
 
 def hr_page():
+
+    default_prompt = """Subject: Congratulations on Your Selection as a Volunteer with Daadras Foundation!
+
+    Dear [Applicant's Name],
+
+    Congratulations! We are pleased to inform you that you have been selected for a volunteer position with Daadras Foundation. Your enthusiasm and commitment to making a difference have truly impressed us, and we are excited to welcome you to our team.
+
+    To finalize your position and discuss the next steps, please contact us at your earliest convenience. We look forward to connecting with you and providing further details about your role and responsibilities.
+
+    Once again, congratulations, and thank you for your willingness to contribute to our mission. We are confident that your involvement will make a meaningful impact.
+
+    Best regards,"""
+
     st.title("Project Management")
+    email_prompts = pd.read_csv("./database/email_prompts.csv")
 
     # Select existing project
     st.header("Select a Project")
@@ -42,6 +62,14 @@ def hr_page():
         st.write("This project has the following files:")
         for file in glob.glob(search):
             st.write(f"- {file}")
+
+        st.subheader("Email Prompts")
+        it_expander = st.expander("IT Prompt")
+        it_expander.markdown(email_prompts[email_prompts.session_name == selected_project]["it_prompt"].values[0])
+        sel_expander = st.expander("SEL Prompt")
+        sel_expander.markdown(email_prompts[email_prompts.session_name == selected_project]["sel_prompt"].values[0])
+        chess_expander = st.expander("CHESS Prompt")
+        chess_expander.markdown(email_prompts[email_prompts.session_name == selected_project]["chess_prompt"].values[0])
 
     # Create new project
     st.header("Create a New Project")
@@ -58,13 +86,19 @@ def hr_page():
     st.subheader("SEL")
     sel_files = st.file_uploader("Upload SEL CSV files", type="csv")
 
-    it_email_prompt = st.text_area(label="IT email prompt",placeholder="IT email prompt", key="it_email_prompt")
-    sel_email_prompt = st.text_area(label="SEL email prompt",placeholder="SEL email prompt", key="sel_email_prompt")
-    chess_email_prompt = st.text_area(label="CHESS email prompt",placeholder="CHESS email prompt", key="chess_email_prompt")
+    it_email_container  = st.expander("IT Email Prompt")
+    it_email_prompt = it_email_container.text_area(label="Enter prompt:",value=default_prompt, key="it_email_prompt")
+
+    sel_email_container = st.expander("SEL Email Prompt")
+    sel_email_prompt = sel_email_container.text_area(label="Enter prompt:",value=default_prompt, placeholder="SEL email prompt", key="sel_email_prompt")
+
+    chess_email_container = st.expander("Chess Email Prompt")
+    chess_email_prompt = chess_email_container.text_area(label="Enter prompt:",value=default_prompt,placeholder="CHESS email prompt", key="chess_email_prompt")
 
     if st.button("Save Project"):
         if new_project_name:
-            save_project(new_project_name, it_files, chess_files, sel_files)
+            save_project(new_project_name, it_files, chess_files, sel_files, it_email_prompt, sel_email_prompt, chess_email_prompt)
+            st.rerun()
         else:
             st.error("Please provide a project name.")
 
@@ -76,10 +110,13 @@ def hr_page():
         delete_button = st.button("Confirm")
     if delete_selector and delete_button:
         sessions = pd.read_csv("./database/sessions.csv", index_col=0)
+        email_prompts = pd.read_csv("./database/email_prompts.csv")
         selected_session_directory = sessions[sessions.session_name == delete_selector].session_number.values[0]
         try:
             rmtree(f"./database/{selected_session_directory}")
             sessions = sessions[sessions.session_name != delete_selector]
+            email_prompts = email_prompts[email_prompts.session_name != delete_selector]
+            email_prompts.to_csv("./database/email_prompts.csv")
             sessions.to_csv("./database/sessions.csv")
             st.success("Project Deleted Successfully!")
         except OSError as e:

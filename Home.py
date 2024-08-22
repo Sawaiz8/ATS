@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import streamlit as st
+from streamlit_extras.row import row
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -178,8 +179,6 @@ def home_page():
         )
         st.plotly_chart(map_fig)
 
-st.session_state["toggle_individual"] = False
-
 if "current_page" not in st.session_state.keys():
     st.session_state["current_page"] = "Intro"
 
@@ -194,6 +193,8 @@ accept_button = st.sidebar.button("Access", type="primary")
 st.session_state["sessions"] = sessions
 st.session_state["project_sessions"] = sessions.session_name.unique()
 
+if "view_applicant" not in st.session_state.keys():
+    st.session_state["view_applicant"] = False
 if accept_button:
     st.session_state["current_page"] = "Applicant"
     intro_page()
@@ -207,64 +208,82 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
     chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "SEL"].sheet_link.values[0]}", index_col = 0)
 
     st.sidebar.divider()
+
+    if "viewing_applicants" not in st.session_state.keys():
+        st.session_state["viewing_applicants"] = None
     home_button = st.sidebar.button(label="Home", use_container_width=True)
     if home_button:
+        st.session_state["viewing_applicants"] = None
         home_page()
 
-    col1, col2, col3 = st.sidebar.columns(3)
-    it_button = col1.button(label="IT", use_container_width=True)
-    sel_button = col2.button(label="SEL", use_container_width=True)
-    chess_button = col3.button(label="CHESS", use_container_width=True)
-    indiv_toggle = st.sidebar.toggle("Individual Applicants", disabled=st.session_state["toggle_individual"])
+    col1, col2, col3 = st.sidebar.columns(3, gap="small")
 
+    it_expander = col1.popover("IT", use_container_width=True)
+    sel_expander = col2.popover("SEL", use_container_width=True)
+    chess_expander = col3.popover("CHSS", use_container_width=True)
+    with it_expander:
+        it_button = st.button(label="Home", use_container_width=True, key="it_button")
+        it_applicants_button = st.button(label="Individual Applicants", use_container_width=True, key="it_applicant")
+
+    with sel_expander:
+        sel_button = st.button(label="Home", use_container_width=True, key="sel_button")
+        sel_applicants_button = st.button(label="Individual Applicants", use_container_width=True, key="sel_applicant")
+
+    with chess_expander:
+        chess_button = st.button(label="Home", use_container_width=True, key="chess_button")
+        chess_applicants_button = st.button(label="Individual Applicants", use_container_width=True, key="chess_applicant")
 
     if it_button:
-        st.session_state["current_applicant"] = "IT"
+        st.session_state["viewing_applicants"] = "IT_home"
     elif sel_button:
-        st.session_state["current_applicant"] = "SEL"
+        st.session_state["viewing_applicants"] = "SEL_home"
     elif chess_button:
-        st.session_state["current_applicant"] = "CHESS"
-    if indiv_toggle and not home_button:
+        st.session_state["viewing_applicants"] = "CHESS_home"
+    elif it_applicants_button:
+        st.session_state["viewing_applicants"] = "IT"
+    elif sel_applicants_button:
+        st.session_state["viewing_applicants"] = "SEL"
+    elif chess_applicants_button:
+        st.session_state["viewing_applicants"] = "CHESS"
 
-        if st.session_state["current_applicant"] == "IT":
-            it_applicants()
-        elif st.session_state["current_applicant"] == "SEL":
-            sel_applicants()
-        elif st.session_state["current_applicant"] == "CHESS":
-            chess_applicants()
-        else:
-            it_applicants()
-
-    else:
-        if it_button:
-            st.session_state["current_applicant"] = "IT"
+    match st.session_state["viewing_applicants"]:
+        case "IT_home":
             it_home()
-        elif sel_button:
-            st.session_state["current_applicant"] = "SEL"
+        case "SEL_home":
             sel_home()
-        elif chess_button:
-            st.session_state["current_applicant"] = "CHESS"
+        case "CHESS_home":
             chess_home()
-        else:
-            st.session_state["current_applicant"] = "IT"
+        case "IT":
+            it_applicants()
+        case "SEL":
+            sel_applicants()
+        case "CHESS":
+            chess_applicants()
+        case _:
+            pass
+
+
     st.sidebar.caption("Applicants")
     acc, rej = st.sidebar.columns(2)
     accepted = acc.button("Accepted", use_container_width=True)
     rejected = rej.button("Rejected", use_container_width=True)
 
     if accepted or st.session_state["current_page"] == "accepted_apl":
+        st.session_state["viewing_applicants"] = None
         view_accepted(it_data, chess_data, sel_data)
     if rejected or st.session_state["current_page"] == "rejected_apl":
-        if not indiv_toggle:
-            view_rejected(it_data, chess_data, sel_data)
+        st.session_state["viewing_applicants"] = None
+        view_rejected(it_data, chess_data, sel_data)
 
 
 st.sidebar.divider()
 st.sidebar.caption("HR")
 if st.sidebar.button(label="Project Management") or st.session_state["current_page"] == "HR":
+    st.session_state["viewing_applicants"] = None
     st.session_state["current_page"] = "HR"
     hr_page()
 
 if st.sidebar.button(label="Update Data") or st.session_state["current_page"] == "Updater":
+    st.session_state["viewing_applicants"] = None
     st.session_state["current_page"] = "Updater"
     update_page()
