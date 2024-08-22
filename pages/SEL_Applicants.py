@@ -9,7 +9,7 @@ def sel_applicants():
     # Read SEL data from CSV file
     csv_files = pd.DataFrame(st.session_state["current_session"])
     sel_data = st.session_state["sel_data"]
-    sel_data["path_to_pdf"] = "./database/session_1/applicant_resume/sample.pdf"
+    sel_data["path_to_pdf"] = "./database/Project Salam 3.0/applicants_resume/sample.pdf"
 
     applicant_dropdown = st.selectbox(
         "Search Individual **SEL** Applicants",
@@ -57,7 +57,7 @@ def sel_applicants():
         container_3.markdown(current_applicant["other_skills"].values[0])
         pdf_source=current_applicant["path_to_pdf"].values[0]
         if pdf_source:
-            pdf_reader("./database/session_1/applicants_resume/sample.pdf")
+            pdf_reader("./database/Project Salam 3.0/applicants_resume/sample.pdf")
 
         action_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
         action_row.empty()
@@ -68,9 +68,13 @@ def sel_applicants():
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
             st.toast('Applicant Accepted', icon="❗")
             st.session_state["sel_data"] = sel_data
+            st.rerun()
+
         elif reject_button:
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
             st.toast('Applicant Rejected', icon="❗")
             st.session_state["sel_data"] = sel_data
+            st.rerun()
+
 
         sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")

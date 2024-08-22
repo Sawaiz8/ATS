@@ -2,13 +2,13 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from streamlit_extras.row import row
+from streamlit_pdf_reader import pdf_reader
 
 def it_applicants():
-    from streamlit_pdf_reader import pdf_reader
     # Read IT data from CSV file
     csv_files = pd.DataFrame(st.session_state["current_session"])
     it_data = st.session_state["it_data"]
-    it_data["path_to_pdf"] = "./database/session_1/applicants_resume/sample.pdf"
+    it_data["path_to_pdf"] = "./database/Project Salam 3.0/applicants_resume/sample.pdf"
 
     applicant_dropdown = st.selectbox(
     "Search Individual **IT** Applicants",
@@ -53,7 +53,7 @@ def it_applicants():
         container_3.markdown(current_applicant["other_skills"].values[0])
         pdf_source=current_applicant["path_to_pdf"].values[0]
         if pdf_source:
-            pdf_reader("./database/session_1/applicants_resume/sample.pdf")
+            pdf_reader("./database/Project Salam 3.0/applicants_resume/sample.pdf")
         csv_files = pd.DataFrame(st.session_state["current_session"])
         action_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
         action_row.empty()
@@ -64,8 +64,10 @@ def it_applicants():
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
             st.toast('Applicant Accepted', icon="❗")
             st.session_state["it_data"] = it_data
+            st.rerun()
         elif reject_button:
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
             st.toast('Applicant Rejected', icon="❗")
             st.session_state["it_data"] = it_data
+            st.rerun()
         it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
