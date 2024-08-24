@@ -18,6 +18,7 @@ def sel_applicants():
     )
     if applicant_dropdown is not None:
         current_applicant = sel_data[sel_data.name == applicant_dropdown]
+        st.metric("Application Status", current_applicant["applicant_status"].values[0])
         col_1, col_2, col_3= st.columns(3)
         col_1.metric("Name", applicant_dropdown)
         col_1.metric("NGO Experience", current_applicant["ngo_work"].values[0])
@@ -35,7 +36,6 @@ def sel_applicants():
 
         st.metric("Institution", current_applicant["institute"].values[0])
         st.metric("Transport", current_applicant["transport"].values[0])
-        st.metric("Application Status", current_applicant["applicant_status"].values[0])
 
         with st.expander("Contact Details"):
             col_a, col_b = st.columns(2)
