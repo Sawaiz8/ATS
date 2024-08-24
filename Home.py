@@ -31,6 +31,9 @@ header_1.write("**دادرس**")
 header_2.caption("Daadras ATS")
 sessions = pd.read_csv("./database/sessions.csv", index_col=0)
 
+if "on_page" not in st.session_state.keys():
+    st.session_state["on_page"] = None
+
 def intro_page():
     st.title("Welcome to Daadras ATS")
 
@@ -197,10 +200,8 @@ if "view_applicant" not in st.session_state.keys():
     st.session_state["view_applicant"] = False
 if accept_button:
     st.session_state["current_page"] = "Applicant"
-    intro_page()
 if session_selector is not None and st.session_state["current_page"] == "Applicant":
     st.session_state["current_session"] = sessions[sessions.session_name == session_selector].reset_index()
-
     # Read form data of relevant session
     csv_files = pd.DataFrame(st.session_state["current_session"])
     it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "IT"].sheet_link.values[0]}", index_col=0)
@@ -209,18 +210,18 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
 
     st.sidebar.divider()
 
-    if "viewing_applicants" not in st.session_state.keys():
-        st.session_state["viewing_applicants"] = None
+    if "on_page" not in st.session_state.keys():
+        st.session_state["on_page"] = None
     home_button = st.sidebar.button(label="Home", use_container_width=True)
     if home_button:
-        st.session_state["viewing_applicants"] = None
+        st.session_state["on_page"] = "Home"
         home_page()
 
     col1, col2, col3 = st.sidebar.columns(3, gap="small")
 
     it_expander = col1.popover("IT", use_container_width=True)
     sel_expander = col2.popover("SEL", use_container_width=True)
-    chess_expander = col3.popover("CHSS", use_container_width=True)
+    chess_expander = col3.popover("CHESS", use_container_width=True)
     with it_expander:
         it_button = st.button(label="Home", use_container_width=True, key="it_button")
         it_applicants_button = st.button(label="Individual Applicants", use_container_width=True, key="it_applicant")
@@ -233,57 +234,57 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
         chess_button = st.button(label="Home", use_container_width=True, key="chess_button")
         chess_applicants_button = st.button(label="Individual Applicants", use_container_width=True, key="chess_applicant")
 
-    if it_button:
-        st.session_state["viewing_applicants"] = "IT_home"
-    elif sel_button:
-        st.session_state["viewing_applicants"] = "SEL_home"
-    elif chess_button:
-        st.session_state["viewing_applicants"] = "CHESS_home"
-    elif it_applicants_button:
-        st.session_state["viewing_applicants"] = "IT"
-    elif sel_applicants_button:
-        st.session_state["viewing_applicants"] = "SEL"
-    elif chess_applicants_button:
-        st.session_state["viewing_applicants"] = "CHESS"
-
-    match st.session_state["viewing_applicants"]:
-        case "IT_home":
-            it_home()
-        case "SEL_home":
-            sel_home()
-        case "CHESS_home":
-            chess_home()
-        case "IT":
-            it_applicants()
-        case "SEL":
-            sel_applicants()
-        case "CHESS":
-            chess_applicants()
-        case _:
-            pass
-
-
     st.sidebar.caption("Applicants")
     acc, rej = st.sidebar.columns(2)
     accepted = acc.button("Accepted", use_container_width=True)
     rejected = rej.button("Rejected", use_container_width=True)
 
-    if accepted or st.session_state["current_page"] == "accepted_apl":
-        st.session_state["viewing_applicants"] = None
-        view_accepted(it_data, chess_data, sel_data)
-    if rejected or st.session_state["current_page"] == "rejected_apl":
-        st.session_state["viewing_applicants"] = None
-        view_rejected(it_data, chess_data, sel_data)
-
+    if it_button:
+        st.session_state["on_page"] = "IT_home"
+    elif sel_button:
+        st.session_state["on_page"] = "SEL_home"
+    elif chess_button:
+        st.session_state["on_page"] = "CHESS_home"
+    elif it_applicants_button:
+        st.session_state["on_page"] = "IT"
+    elif sel_applicants_button:
+        st.session_state["on_page"] = "SEL"
+    elif chess_applicants_button:
+        st.session_state["on_page"] = "CHESS"
+    elif accepted:
+        st.session_state["on_page"] = "Accepted"
+    elif rejected:
+        st.session_state["on_page"] = "Rejected"
+    else:
+        pass
 
 st.sidebar.divider()
 st.sidebar.caption("HR")
-if st.sidebar.button(label="Project Management") or st.session_state["current_page"] == "HR":
-    st.session_state["viewing_applicants"] = None
-    st.session_state["current_page"] = "HR"
-    hr_page()
+if st.sidebar.button(label="Project Management"):
+    st.session_state["on_page"] = "HR"
+if st.sidebar.button(label="Update Data"):
+    st.session_state["on_page"] = "Updater"
 
-if st.sidebar.button(label="Update Data") or st.session_state["current_page"] == "Updater":
-    st.session_state["viewing_applicants"] = None
-    st.session_state["current_page"] = "Updater"
-    update_page()
+match st.session_state["on_page"]:
+    case "IT_home":
+        it_home()
+    case "SEL_home":
+        sel_home()
+    case "CHESS_home":
+        chess_home()
+    case "IT":
+        it_applicants()
+    case "SEL":
+        sel_applicants()
+    case "CHESS":
+        chess_applicants()
+    case "Accepted":
+        view_accepted()
+    case "Rejected":
+        view_rejected()
+    case "HR":
+        hr_page()
+    case "Updater":
+        update_page()
+    case _:
+        pass

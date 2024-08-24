@@ -2,7 +2,11 @@ import pandas as pd
 import streamlit as st
 
 
-def view_accepted(it, chess, sel):
+def view_accepted():
+    it = st.session_state["it_data"]
+    sel = st.session_state["sel_data"]
+    chess = st.session_state["chess_data"]
+
     tab1, tab2, tab3 = st.tabs(["IT", "SEL", "CHESS"])
     it["email_status"] = "Unsent"
     chess["email_status"] = "Unsent"
