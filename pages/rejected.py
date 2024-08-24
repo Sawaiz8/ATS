@@ -7,7 +7,7 @@ def view_rejected():
     sel = st.session_state["sel_data"]
     chess = st.session_state["chess_data"]
 
-    tab1, tab2, tab3 = st.tabs(["IT", "SEL", "CHESS"])
+    tab1, tab2, tab3 = st.tabs(["IT", "CHESS", "SEL"])
     it["email_status"] = "Unsent"
     chess["email_status"] = "Unsent"
     sel["email_status"] = "Unsent"
