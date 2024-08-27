@@ -70,4 +70,4 @@ def it_applicants():
             st.toast('Applicant Rejected', icon="❗")
             st.session_state["it_data"] = it_data
             st.rerun()
-        it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
+        it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)

@@ -29,7 +29,7 @@ st.set_page_config(
 header_1, header_2 = st.sidebar.columns(2)
 header_1.write("**دادرس**")
 header_2.caption("Daadras ATS")
-sessions = pd.read_csv("./database/sessions.csv", index_col=0)
+sessions = pd.read_csv("./database/sessions.csv")
 
 if "on_page" not in st.session_state.keys():
     st.session_state["on_page"] = None
@@ -41,10 +41,6 @@ def intro_page():
 
 
 def home_page():
-    st.session_state["it_data"] = it_data
-    st.session_state["sel_data"] = sel_data
-    st.session_state["chess_data"] = chess_data
-
     app_data = [st.session_state["it_data"], st.session_state["chess_data"], st.session_state["sel_data"]]
     app_data = pd.concat(app_data)
     tab1, tab2, tab3 = st.tabs(["🔎 Overview", "📈 Charts", "📍 Map"])
@@ -204,9 +200,13 @@ if session_selector is not None and st.session_state["current_page"] == "Applica
     st.session_state["current_session"] = sessions[sessions.session_name == session_selector].reset_index()
     # Read form data of relevant session
     csv_files = pd.DataFrame(st.session_state["current_session"])
-    it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "IT"].sheet_link.values[0]}", index_col=0)
-    sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "CHESS"].sheet_link.values[0]}", index_col=0)
-    chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == "SEL"].sheet_link.values[0]}", index_col = 0)
+    it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
+    sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
+    chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+    st.session_state["it_data"] = it_data
+    st.session_state["sel_data"] = sel_data
+    st.session_state["chess_data"] = chess_data
+
 
     st.sidebar.divider()
 
