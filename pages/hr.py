@@ -2,10 +2,11 @@ import streamlit as st
 import pandas as pd
 from os import mkdir
 from shutil import rmtree
+from time import sleep
 import glob
 def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_email, sel_email, it_subject, chess_subject, sel_subject):
 
-    sessions = pd.read_csv("./database/sessions.csv", index_col=0)
+    sessions = pd.read_csv("./database/sessions.csv")
     if project_name in sessions["session_name"]:
         st.error("Project with same name already exists!")
         return
@@ -20,23 +21,22 @@ def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_em
     chess = pd.read_csv(chess_file)
     sel = pd.read_csv(sel_file)
 
-    it.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv")
-    chess.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv")
-    sel.to_csv(f"./database/{project_name}/applicants_form_data/sel_applicant_data.csv")
+    it.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv", index=False)
+    chess.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv", index=False)
+    sel.to_csv(f"./database/{project_name}/applicants_form_data/sel_applicant_data.csv", index=False)
 
     sessions.loc[len(sessions.index)] = [project_name, "IT", project_name, f"{project_name}/applicants_form_data/it_applicant_data.csv"]
     sessions.loc[len(sessions.index)] = [project_name, "SEL", project_name, f"{project_name}/applicants_form_data/sel_applicant_data.csv"]
     sessions.loc[len(sessions.index)] = [project_name, "CHESS", project_name, f"{project_name}/applicants_form_data/chess_applicant_data.csv"]
 
 
-    sessions.to_csv("./database/sessions.csv")
+    sessions.to_csv("./database/sessions.csv", index=False)
     st.toast(f"{project_name} created successfully!")
 
 
 def hr_page():
 
-    default_prompt = """Subject: Congratulations on Your Selection as a Volunteer with Daadras Foundation!
-
+    default_prompt = """
     Dear [Applicant's Name],
 
     Congratulations! We are pleased to inform you that you have been selected for a volunteer position with Daadras Foundation. Your enthusiasm and commitment to making a difference have truly impressed us, and we are excited to welcome you to our team.
@@ -65,14 +65,14 @@ def hr_page():
 
         st.subheader("Email Prompts")
         it_expander = st.expander("IT Prompt")
-        it_expander.markdown(f"Subject: {email_prompts[email_prompts.session_name == selected_project]["it_header"].values[0]}")
+        it_expander.markdown(f"Subject: {email_prompts[email_prompts.session_name == selected_project]['it_header'].values[0]}")
         it_expander.write(email_prompts[email_prompts.session_name == selected_project]["it_prompt"].values[0])
         sel_expander = st.expander("SEL Prompt")
-        sel_expander.markdown(f"Subject: {email_prompts[email_prompts.session_name == selected_project]["sel_header"].values[0]}")
-        sel_expander.write(email_prompts[email_prompts.session_name == selected_project]["it_prompt"].values[0])
+        sel_expander.markdown(f"Subject: {email_prompts[email_prompts.session_name == selected_project]['sel_header'].values[0]}")
+        sel_expander.write(email_prompts[email_prompts.session_name == selected_project]['sel_prompt'].values[0])
         chess_expander = st.expander("CHESS Prompt")
-        chess_expander.markdown(f"Subject: {email_prompts[email_prompts.session_name == selected_project]["chess_header"].values[0]}")
-        chess_expander.write(email_prompts[email_prompts.session_name == selected_project]["chess_prompt"].values[0])
+        chess_expander.markdown(f"Subject: {email_prompts[email_prompts.session_name == selected_project]['chess_header'].values[0]}")
+        chess_expander.write(email_prompts[email_prompts.session_name == selected_project]['chess_prompt'].values[0])
 
     # Create new project
     st.header("Create a New Project")
@@ -104,6 +104,8 @@ def hr_page():
     if st.button("Save Project"):
         if new_project_name:
             save_project(new_project_name, it_files, chess_files, sel_files, it_email_prompt, sel_email_prompt, chess_email_prompt, it_email_subject, sel_email_subject, chess_email_subject)
+            st.success("Project created successfully")
+            sleep(1.0)
             st.rerun()
         else:
             st.error("Please provide a project name.")
@@ -115,7 +117,7 @@ def hr_page():
         st.error("Are you sure?")
         delete_button = st.button("Confirm")
     if delete_selector and delete_button:
-        sessions = pd.read_csv("./database/sessions.csv", index_col=0)
+        sessions = pd.read_csv("./database/sessions.csv")
         email_prompts = pd.read_csv("./database/email_prompts.csv")
         selected_session_directory = sessions[sessions.session_name == delete_selector].session_number.values[0]
         try:
@@ -123,8 +125,9 @@ def hr_page():
             sessions = sessions[sessions.session_name != delete_selector]
             email_prompts = email_prompts[email_prompts.session_name != delete_selector]
             email_prompts.to_csv("./database/email_prompts.csv", index=False)
-            sessions.to_csv("./database/sessions.csv")
+            sessions.to_csv("./database/sessions.csv", index=False)
             st.success("Project Deleted Successfully!")
+            sleep(1.0)
             st.rerun()
         except OSError as e:
             st.error("Error deleting project!")

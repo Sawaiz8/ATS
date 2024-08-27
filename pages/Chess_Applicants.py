@@ -67,4 +67,4 @@ def chess_applicants():
             st.session_state["chess_data"] = chess_data
             st.rerun()
 
-        chess_data.to_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
+        chess_data.to_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}", index=False)

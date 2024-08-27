@@ -77,4 +77,4 @@ def sel_applicants():
             st.rerun()
 
 
-        sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+        sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
