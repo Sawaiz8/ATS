@@ -84,7 +84,7 @@ def it_home():
 
         # Graph Applicants with NGO experience using st.bar_chart
         # Filter the data for those who have NGO experience
-        it_with_ngo_experience = it_data[it_data['ngo_work'] == 'yes']
+        it_with_ngo_experience = it_data[it_data['ngo_work'] == 'Yes']
         # Group by Institute/Organization Name and count the number of people with NGO experience
         institute_counts = it_with_ngo_experience['institute'].value_counts().reset_index()
         institute_counts.columns = ['institute', 'count']
