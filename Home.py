@@ -41,9 +41,7 @@ def intro_page():
 
 
 def home_page():
-    st.session_state["it_data"] = it_data
-    st.session_state["sel_data"] = sel_data
-    st.session_state["chess_data"] = chess_data
+
 
     app_data = [st.session_state["it_data"], st.session_state["chess_data"], st.session_state["sel_data"]]
     app_data = pd.concat(app_data)
@@ -201,12 +199,17 @@ if "view_applicant" not in st.session_state.keys():
 if accept_button:
     st.session_state["current_page"] = "Applicant"
 if session_selector is not None and st.session_state["current_page"] == "Applicant":
+
     st.session_state["current_session"] = sessions[sessions.session_name == session_selector].reset_index()
     # Read form data of relevant session
     csv_files = pd.DataFrame(st.session_state["current_session"])
     it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
     sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
     chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+
+    st.session_state["it_data"] = it_data
+    st.session_state["sel_data"] = sel_data
+    st.session_state["chess_data"] = chess_data
 
     st.sidebar.divider()
 
