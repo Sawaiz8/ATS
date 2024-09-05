@@ -68,13 +68,12 @@ def sel_applicants():
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
             st.toast('Applicant Accepted', icon="❗")
             st.session_state["sel_data"] = sel_data
+            sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
             st.rerun()
 
         elif reject_button:
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
             st.toast('Applicant Rejected', icon="❗")
             st.session_state["sel_data"] = sel_data
+            sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
             st.rerun()
-
-
-        sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)

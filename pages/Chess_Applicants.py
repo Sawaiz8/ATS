@@ -59,12 +59,12 @@ def chess_applicants():
             chess_data.loc[chess_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
             st.toast('Applicant Accepted', icon="❗")
             st.session_state["chess_data"] = chess_data
+            chess_data.to_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}", index=False)
             st.rerun()
 
         elif reject_button:
             chess_data.loc[chess_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
             st.toast('Applicant Rejected', icon="❗")
             st.session_state["chess_data"] = chess_data
+            chess_data.to_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}", index=False)
             st.rerun()
-
-        chess_data.to_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}", index=False)

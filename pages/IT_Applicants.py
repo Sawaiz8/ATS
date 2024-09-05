@@ -63,9 +63,10 @@ def it_applicants():
         if accept_button:
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
             st.session_state["it_data"] = it_data
+            it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
             st.rerun()
         elif reject_button:
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
             st.session_state["it_data"] = it_data
+            it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
             st.rerun()
-        it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
