@@ -25,6 +25,8 @@ from pages.update_data import update_page
 import yaml
 from yaml.loader import SafeLoader
 
+load_dotenv()
+
 with open("config.yaml") as file:
     config = yaml.load(file, Loader=SafeLoader)
 
@@ -37,10 +39,13 @@ authenticator = stauth.Authenticate(
     config['preauthorized']
 )
 
-name, st.session_state["authentication_status"], username = authenticator.login('main')
-if st.session_state["authentication_status"] == False:
-    st.error('Username/password is incorrect')
-load_dotenv()
+
+def auth_page():
+    name, st.session_state["authentication_status"], username = authenticator.login('main')
+    if st.session_state["authentication_status"]:
+        st.rerun()
+    elif st.session_state["authentication_status"] == False:
+        st.error('Username/password is incorrect')
 
 def intro_page():
     st.title("Welcome to Daadras ATS")
@@ -186,9 +191,14 @@ def home_page():
         st.plotly_chart(map_fig)
 first_run = True
 if st.session_state["authentication_status"]:
-    authenticator.logout('Logout', 'sidebar')
+    logout_button = st.sidebar.button("Logout")
+    if logout_button:
+        st.session_state["on_page"] = None
+        st.session_state["authentication_status"] = None
+        st.rerun()
     if "on_page" not in st.session_state.keys():
         st.session_state["on_page"] = None
+        intro_page()
 
     header_1, header_2 = st.sidebar.columns(2)
     header_1.write("**دادرس**")
@@ -304,3 +314,6 @@ if st.session_state["authentication_status"]:
             update_page()
         case _:
             pass
+
+else:
+    auth_page()
