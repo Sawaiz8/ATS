@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from google_connector.google_sheet_download import GoogleDriveDownloader
 import streamlit as st
 import streamlit_authenticator as stauth
 from streamlit_extras.row import row
@@ -222,12 +223,29 @@ if st.session_state["authentication_status"]:
 
     if session_selector is not None and st.session_state["current_page"] == "Applicant":
         st.session_state["current_session"] = sessions[sessions.session_name == session_selector].reset_index()
+        downloader = GoogleDriveDownloader()
         # Read form data of relevant session
         csv_files = pd.DataFrame(st.session_state["current_session"])
+
+        download_it_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'IT'].sheet_url.values[0]}", f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
+        download_sel_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'CHESS'].sheet_url.values[0]}", f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
+        download_chess_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'SEL'].sheet_url.values[0]}", f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+
         it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
         sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
         chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
 
+        for applicant_name, pdf_link in it_data[["name","cv"]]:
+            downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/it_{applicant_name}.pdf")
+            it_data.loc[it_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/it_{applicant_name}.pdf"
+
+        for applicant_name, pdf_link in sel_data[["name","cv"]]:
+            downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/sel_{applicant_name}.pdf")
+            sel_data.loc[sel_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/sel_{applicant_name}.pdf"
+
+        for applicant_name, pdf_link in chess_data[["name","cv"]]:
+            downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/chess_{applicant_name}.pdf")
+            chess_data.loc[chess_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/chess_{applicant_name}.pdf"
 
         if first_run:
             st.session_state["it_data"] = it_data

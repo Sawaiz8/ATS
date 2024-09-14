@@ -1,3 +1,4 @@
+from google_connector.google_sheet_download import GoogleDriveDownloader
 import streamlit as st
 import pandas as pd
 from os import mkdir
@@ -16,10 +17,14 @@ def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_em
     mkdir(f"./database/{project_name}")
     mkdir(f"./database/{project_name}/applicants_form_data")
     mkdir(f"./database/{project_name}/applicants_resume")
+    downloader = GoogleDriveDownloader()
+    it_sheet = downloader.download_google_sheet(it_file, "it_file.xlsx")
+    sel_sheet = downloader.download_google_sheet(sel_file, "sel_file.xlsx")
+    chess_sheet = downloader.download_google_sheet(chess_file, "chess_file.xlsx")
 
-    it = pd.read_csv(it_file)
-    chess = pd.read_csv(chess_file)
-    sel = pd.read_csv(sel_file)
+    it = pd.read_excel(it_sheet)
+    chess = pd.read_excel(chess_sheet)
+    sel = pd.read_excel(sel_sheet)
 
     it.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv", index=False)
     chess.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv", index=False)
@@ -81,13 +86,13 @@ def hr_page():
     st.write("### Upload CSV Files")
 
     st.subheader("Chess")
-    chess_files = st.file_uploader("Upload Chess CSV files", type="csv")
+    chess_files = st.text_input("Link to CHESS Sheet")
 
     st.subheader("IT")
-    it_files = st.file_uploader("Upload IT CSV files", type="csv")
+    it_files = st.file_uploader("Link to IT Sheet")
 
     st.subheader("SEL")
-    sel_files = st.file_uploader("Upload SEL CSV files", type="csv")
+    sel_files = st.file_uploader("Link to SEL Sheet")
 
     it_email_container  = st.expander("IT Email Prompt")
     it_email_subject = it_email_container.text_input(label="Subject", value=default_subject, key="it_email_subject")

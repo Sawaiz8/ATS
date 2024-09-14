@@ -8,7 +8,6 @@ def it_applicants():
     # Read IT data from CSV file
     csv_files = pd.DataFrame(st.session_state["current_session"])
     it_data = st.session_state["it_data"]
-    it_data["path_to_pdf"] = "./database/Project Salam 3.0/applicants_resume/sample.pdf"
 
     applicant_dropdown = st.selectbox(
     "Search Individual **IT** Applicants",

@@ -1,20 +1,30 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
+from google_connector.google_sheet_download import GoogleDriveDownloader
 from time import sleep
 
+
 def update_data(project_name=None, chess=None, it=None, sel=None, chess_email=None, it_email=None, sel_email=None, chess_subject=None, it_subject=None, sel_subject=None):
+    downloader = GoogleDriveDownloader()
+    sessions = pd.read_csv("./database/sessions.csv")
     if it is not None:
-        it = pd.read_csv(it)
-        it.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv", index=False)
+        downloaded_file = downloader.download_google_sheet(it)
+        sessions.loc[(sessions.session_name == project_name) and (sessions.category == "IT"), "sheet_url"] = it
+        it_df = pd.read_excel(downloaded_file)
+        it_df.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv", index=False)
         st.success("Updated IT file")
     if chess is not None:
-        chess = pd.read_csv(chess)
-        chess.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv",index=False)
-        st.success("Updated CHESS file")
+        downloaded_file = downloader.download_google_sheet(chess)
+        sessions.loc[(sessions.session_name == project_name) and (sessions.category == "CHESS"), "sheet_url"] = chess
 
+        chess_df = pd.read_excel(downloaded_file)
+        chess_df.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv",index=False)
+        st.success("Updated CHESS file")
     if sel is not None:
-        sel = pd.read_csv(sel)
-        sel.to_csv(f"./database/{project_name}/applicants_form_data/sel_applicant_data.csv", index=False)
+        downloaded_file = downloader.download_google_sheet(sel)
+        sessions.loc[(sessions.session_name == project_name) and (sessions.category == "SEL"), "sheet_url"] = sel
+        sel_df = pd.read_excel(downloaded_file)
+        sel_df.to_csv(f"./database/{project_name}/applicants_form_data/sel_applicant_data.csv", index=False)
         st.write("Updated SEL file")
 
     email_prompts = pd.read_csv("./database/email_prompts.csv")
@@ -27,22 +37,21 @@ def update_data(project_name=None, chess=None, it=None, sel=None, chess_email=No
     email_prompts.loc[update_condition, ["sel_header"]] = sel_subject
     email_prompts.loc[update_condition, ["chess_header"]] = chess_subject
 
-
+    sessions.to_csv("./database/sessions.csv", index=False)
     email_prompts.to_csv("./database/email_prompts.csv",index=False)
 
 def update_page():
-
     email_prompts = pd.read_csv("./database/email_prompts.csv")
 
     st.title("Update Session Data")
     selected_project = st.selectbox("Choose a project", st.session_state["project_sessions"], key="update_selector")
     if selected_project is not None:
         st.subheader("Chess")
-        chess_files = st.file_uploader("Upload Chess CSV files", type="csv")
+        chess_files = st.text_input("Link to CHESS Sheet")
         st.subheader("IT")
-        it_files = st.file_uploader("Upload IT CSV files", type="csv")
+        it_files = st.text_input("Link to IT Sheet")
         st.subheader("SEL")
-        sel_files = st.file_uploader("Upload SEL CSV files", type="csv")
+        sel_files = st.text_input("Link to SEL Sheet")
 
 
         it_email_container  = st.expander("IT Email Prompt")
