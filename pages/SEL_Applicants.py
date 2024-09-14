@@ -9,7 +9,6 @@ def sel_applicants():
     # Read SEL data from CSV file
     csv_files = pd.DataFrame(st.session_state["current_session"])
     sel_data = st.session_state["sel_data"]
-    sel_data["path_to_pdf"] = "./database/Project Salam 3.0/applicants_resume/sample.pdf"
 
     applicant_dropdown = st.selectbox(
         "Search Individual **SEL** Applicants",
