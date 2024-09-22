@@ -56,7 +56,7 @@ def sel_applicants():
         container_3.markdown(current_applicant["other_skills"].values[0])
         pdf_source=current_applicant["path_to_pdf"].values[0]
         if pdf_source:
-            pdf_reader("./database/Project Salam 3.0/applicants_resume/sample.pdf")
+            pdf_reader(pdf_source)
 
         action_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
         action_row.empty()

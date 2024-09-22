@@ -9,23 +9,27 @@ def update_data(project_name=None, chess=None, it=None, sel=None, chess_email=No
     sessions = pd.read_csv("./database/sessions.csv")
     if it is not None:
         downloaded_file = downloader.download_google_sheet(it, "temp_file.csv")
-        sessions.loc[(sessions.session_name == project_name) and (sessions.category == "IT"), "sheet_url"] = it
+        conditional = (sessions.session_name == project_name) & (sessions.category == "IT")
+        sessions.loc[conditional, "sheet_url"] = it
         it_df = pd.read_csv("temp_file.csv")
         it_df.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv", index=False)
         st.success("Updated IT file")
     if chess is not None:
         downloaded_file = downloader.download_google_sheet(chess, "temp_file.csv")
-        sessions.loc[(sessions.session_name == project_name) and (sessions.category == "CHESS"), "sheet_url"] = chess
-
-        chess_df = pd.read_csv("tesmp_file.csv")
+        conditional = (sessions.session_name == project_name) & (sessions.category == "CHESS")
+        sessions.loc[conditional, "sheet_url"] = chess
+        chess_df = pd.read_csv("temp_file.csv")
         chess_df.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv",index=False)
         st.success("Updated CHESS file")
     if sel is not None:
         downloaded_file = downloader.download_google_sheet(sel, "temp_file.csv")
-        sessions.loc[(sessions.session_name == project_name) and (sessions.category == "SEL"), "sheet_url"] = sel
+        conditional = (sessions.session_name == project_name) & (sessions.category == "SEL")
+        sessions.loc[conditional, "sheet_url"] = sel
         sel_df = pd.read_csv("temp_file.csv")
         sel_df.to_csv(f"./database/{project_name}/applicants_form_data/sel_applicant_data.csv", index=False)
         st.write("Updated SEL file")
+
+
 
     email_prompts = pd.read_csv("./database/email_prompts.csv")
     update_condition = email_prompts.session_name == project_name
@@ -52,7 +56,6 @@ def update_page():
         it_files = st.text_input("Link to IT Sheet")
         st.subheader("SEL")
         sel_files = st.text_input("Link to SEL Sheet")
-
 
         it_email_container  = st.expander("IT Email Prompt")
         it_email_subject = it_email_container.text_input(label="Subject", value=email_prompts[email_prompts.session_name == selected_project]["it_header"].values[0], key="it_email_subject")
