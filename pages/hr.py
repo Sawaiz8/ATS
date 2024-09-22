@@ -6,7 +6,14 @@ from shutil import rmtree
 from time import sleep
 import glob
 def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_email, sel_email, it_subject, chess_subject, sel_subject):
-
+    downloader = GoogleDriveDownloader()
+    try:
+        it_sheet = downloader.download_google_sheet(it_file, "it_file.csv")
+        sel_sheet = downloader.download_google_sheet(sel_file, "sel_file.csv")
+        chess_sheet = downloader.download_google_sheet(chess_file, "chess_file.csv")
+    except:
+        st.error("Error downloading files")
+        return
     sessions = pd.read_csv("./database/sessions.csv")
     if project_name in sessions["session_name"]:
         st.error("Project with same name already exists!")
@@ -17,23 +24,87 @@ def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_em
     mkdir(f"./database/{project_name}")
     mkdir(f"./database/{project_name}/applicants_form_data")
     mkdir(f"./database/{project_name}/applicants_resume")
-    downloader = GoogleDriveDownloader()
-    it_sheet = downloader.download_google_sheet(it_file, "it_file.xlsx")
-    sel_sheet = downloader.download_google_sheet(sel_file, "sel_file.xlsx")
-    chess_sheet = downloader.download_google_sheet(chess_file, "chess_file.xlsx")
+    it = pd.read_csv("it_file.csv")
+    chess = pd.read_csv("chess_file.csv")
+    sel = pd.read_csv("sel_file.csv")
 
-    it = pd.read_excel(it_sheet)
-    chess = pd.read_excel(chess_sheet)
-    sel = pd.read_excel(sel_sheet)
+
+    it.rename(columns={
+        'Timestamp': 'timestamp',
+        'Email Address': 'email',
+        'Name': 'name',
+        'Age': 'age',
+        'Gender': 'gender',
+        'Phone Number': 'phone_number',
+        'Transport': 'transport',
+        'Have you worked for any NGO before?': 'ngo_work',
+        'City': 'city',
+        'In which area do you currently reside in your city?': 'city_address',
+        'Your Current Occupation': 'occupation',
+        'Institute where you currently study or studied': 'institute',
+        'CV': 'CV',
+        'What computers skills do you have?': 'cs_skills',
+        'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
+        'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
+        'Your Instagram Account:': 'insta_id',
+        'Your LinkedIn Profile:': 'linkedin_id',
+        'Do you have a Discord ID?': 'has_discord'
+    }, inplace=True)
+    it["sheet_url"] = it_file
+    sel["sheet_url"] = sel_file
+    chess["sheet_url"] = chess_file
+
+    sel.rename(columns={
+        'Timestamp': 'timestamp',
+        'Email Address': 'email',
+        'Name': 'name',
+        'Age': 'age',
+        'Gender': 'gender',
+        'Phone Number': 'phone_number',
+        'Transport': 'transport',
+        'Have you worked for any NGO before?': 'ngo_work',
+        'City': 'city',
+        'In which area do you currently reside in your city?': 'city_address',
+        'Your Current Occupation': 'occupation',
+        'Institute where you currently study or studied': 'institute',
+        'CV': 'CV',
+        'What computers skills do you have?': 'cs_skills',
+        'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
+        'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
+        'Your Instagram Account:': 'insta_id',
+        'Your LinkedIn Profile:': 'linkedin_id',
+        'Do you have a Discord ID?': 'has_discord'
+    }, inplace=True)
+
+    chess.rename(columns={
+        'Timestamp': 'timestamp',
+        'Email Address': 'email',
+        'Name': 'name',
+        'Age': 'age',
+        'Gender': 'gender',
+        'Phone Number': 'phone_number',
+        'Transport': 'transport',
+        'Have you worked for any NGO before?': 'ngo_work',
+        'City': 'city',
+        'In which area do you currently reside in your city?': 'city_address',
+        'Your Current Occupation': 'occupation',
+        'Institute where you currently study or studied': 'institute',
+        'CV': 'CV',
+        'What computers skills do you have?': 'cs_skills',
+        'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
+        'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
+        'Your Instagram Account:': 'insta_id',
+        'Your LinkedIn Profile:': 'linkedin_id',
+        'Do you have a Discord ID?': 'has_discord'
+    }, inplace=True)
 
     it.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv", index=False)
     chess.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv", index=False)
     sel.to_csv(f"./database/{project_name}/applicants_form_data/sel_applicant_data.csv", index=False)
 
-    sessions.loc[len(sessions.index)] = [project_name, "IT", project_name, f"{project_name}/applicants_form_data/it_applicant_data.csv"]
-    sessions.loc[len(sessions.index)] = [project_name, "SEL", project_name, f"{project_name}/applicants_form_data/sel_applicant_data.csv"]
-    sessions.loc[len(sessions.index)] = [project_name, "CHESS", project_name, f"{project_name}/applicants_form_data/chess_applicant_data.csv"]
-
+    sessions.loc[len(sessions.index)] = [project_name, "IT", project_name, f"{project_name}/applicants_form_data/it_applicant_data.csv", it_file]
+    sessions.loc[len(sessions.index)] = [project_name, "SEL", project_name, f"{project_name}/applicants_form_data/sel_applicant_data.csv", sel_file]
+    sessions.loc[len(sessions.index)] = [project_name, "CHESS", project_name, f"{project_name}/applicants_form_data/chess_applicant_data.csv", chess_file]
 
     sessions.to_csv("./database/sessions.csv", index=False)
     st.toast(f"{project_name} created successfully!")
@@ -83,16 +154,16 @@ def hr_page():
     st.header("Create a New Project")
     new_project_name = st.text_input("Project Name")
 
-    st.write("### Upload CSV Files")
+    st.write("### Link CSV Files")
 
     st.subheader("Chess")
     chess_files = st.text_input("Link to CHESS Sheet")
 
     st.subheader("IT")
-    it_files = st.file_uploader("Link to IT Sheet")
+    it_files = st.text_input("Link to IT Sheet")
 
     st.subheader("SEL")
-    sel_files = st.file_uploader("Link to SEL Sheet")
+    sel_files = st.text_input("Link to SEL Sheet")
 
     it_email_container  = st.expander("IT Email Prompt")
     it_email_subject = it_email_container.text_input(label="Subject", value=default_subject, key="it_email_subject")
