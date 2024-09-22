@@ -11,6 +11,7 @@ def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_em
         it_sheet = downloader.download_google_sheet(it_file, "it_file.csv")
         sel_sheet = downloader.download_google_sheet(sel_file, "sel_file.csv")
         chess_sheet = downloader.download_google_sheet(chess_file, "chess_file.csv")
+
     except:
         st.error("Error downloading files")
         return
@@ -27,8 +28,6 @@ def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_em
     it = pd.read_csv("it_file.csv")
     chess = pd.read_csv("chess_file.csv")
     sel = pd.read_csv("sel_file.csv")
-
-
     it.rename(columns={
         'Timestamp': 'timestamp',
         'Email Address': 'email',
@@ -50,9 +49,6 @@ def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_em
         'Your LinkedIn Profile:': 'linkedin_id',
         'Do you have a Discord ID?': 'has_discord'
     }, inplace=True)
-    it["sheet_url"] = it_file
-    sel["sheet_url"] = sel_file
-    chess["sheet_url"] = chess_file
 
     sel.rename(columns={
         'Timestamp': 'timestamp',
@@ -97,6 +93,17 @@ def save_project(project_name, it_file, chess_file, sel_file, it_email, chess_em
         'Your LinkedIn Profile:': 'linkedin_id',
         'Do you have a Discord ID?': 'has_discord'
     }, inplace=True)
+
+    for name, resume in it[["name", "CV"]].values:
+        downloader.download_pdf(resume, f"./database/{project_name}/applicants_resume/{name}_resume_it.pdf")
+        it.loc[it.name == name, "path_to_pdf"] = f"/database/{project_name}/applicants_resume/{name}_resume_it.pdf"
+    for name, resume in sel[["name", "CV"]].values:
+        downloader.download_pdf(resume, f"./database/{project_name}/applicants_resume/{name}_resume_sel.pdf")
+        sel.loc[sel.name == name, "path_to_pdf"] = f"/database/{project_name}/applicants_resume/{name}_resume_it.pdf"
+
+    for name, resume in chess[["name", "CV"]].values:
+        downloader.download_pdf(resume, f"./database/{project_name}/applicants_resume/{name}_resume_chess.pdf")
+        chess.loc[chess.name == name, "path_to_pdf"] = f"/database/{project_name}/applicants_resume/{name}_resume_it.pdf"
 
     it.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv", index=False)
     chess.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv", index=False)
