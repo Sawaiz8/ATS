@@ -1,7 +1,1 @@
-session_name,category,session_number,sheet_link
-Project Salam 2.0,IT,Project Salam 2.0,Project Salam 2.0/applicants_form_data/it_applicant_data.csv
-Project Salam 2.0,SEL,Project Salam 2.0,Project Salam 2.0/applicants_form_data/sel_applicant_data.csv
-Project Salam 2.0,CHESS,Project Salam 2.0,Project Salam 2.0/applicants_form_data/chess_applicant_data.csv
-Project Salam 3.0,IT,Project Salam 3.0,Project Salam 3.0/applicants_form_data/it_applicant_data.csv
-Project Salam 3.0,SEL,Project Salam 3.0,Project Salam 3.0/applicants_form_data/sel_applicant_data.csv
-Project Salam 3.0,CHESS,Project Salam 3.0,Project Salam 3.0/applicants_form_data/chess_applicant_data.csv
+session_name,category,session_number,sheet_link,sheet_url
