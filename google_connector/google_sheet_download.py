@@ -38,8 +38,8 @@ class GoogleDriveDownloader:
         # Initialize the Drive API client
         self.service = build("drive", "v3", credentials=self.creds)
 
-    def download_google_sheet(self, sheet_url, output_file='sheet.xlsx'):
-        """Downloads a Google Sheet as an Excel file (.xlsx).
+    def download_google_sheet(self, sheet_url, output_file='sheet.csv'):
+        """Downloads a Google Sheet as a CSV file (.csv).
         
         Args:
             sheet_url: URL of the Google Sheet to download.
@@ -49,8 +49,8 @@ class GoogleDriveDownloader:
             # Extract file ID from the Google Sheet URL
             file_id = sheet_url.split("/d/")[1].split("/")[0]
 
-            # Request to export the Google Sheet as an Excel file
-            request = self.service.files().export_media(fileId=file_id, mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            # Request to export the Google Sheet as a CSV file
+            request = self.service.files().export_media(fileId=file_id, mimeType='text/csv')
             
             file_data = io.BytesIO()
             downloader = MediaIoBaseDownload(file_data, request)
@@ -59,7 +59,7 @@ class GoogleDriveDownloader:
                 status, done = downloader.next_chunk()
                 print(f"Download {int(status.progress() * 100)}% complete.")
 
-            # Write the downloaded content to an Excel file
+            # Write the downloaded content to a CSV file
             with open(output_file, "wb") as output:
                 output.write(file_data.getvalue())
 
@@ -72,7 +72,6 @@ class GoogleDriveDownloader:
     def _extract_file_id(self, url):
         """Extracts the file ID from a Google Drive URL."""
         return url.split("id=")[-1] if "id=" in url else url.split("/d/")[1].split("/")[0]
-
 
     def download_pdf(self, pdf_url, output_file='file.pdf'):
         """Downloads a PDF from Google Drive.
@@ -105,14 +104,14 @@ class GoogleDriveDownloader:
             print(f"An error occurred: {error}")
             return None
 
-# Example usage:
-if __name__ == "__main__":
-    downloader = GoogleDriveDownloader()
+# # Example usage:
+# if __name__ == "__main__":
+#     downloader = GoogleDriveDownloader()
 
-    # Download a Google Sheet as an Excel file
-    sheet_url = "https://docs.google.com/spreadsheets/d/1A0th_oYwUKonEfZgkYyeDZpNhijPZYzkOGrzI9IzsJE/edit?pli=1&gid=1992609765#gid=1992609765"
-    downloader.download_google_sheet(sheet_url)
+#     # Download a Google Sheet as a CSV file
+#     sheet_url = "https://docs.google.com/spreadsheets/d/1hRe35C02f6AzvcsNb8PkBjgAAh1krZU1-YlSuDNG8Ow/edit?resourcekey=&gid=983807525#gid=983807525"
+#     downloader.download_google_sheet(sheet_url)
 
-    # Download a PDF file from Google Drive
-    pdf_url = "https://drive.google.com/open?id=1PwMVCljiJCKwiSFJ3wBBc3e_rkH5YBys"
-    downloader.download_pdf(pdf_url)
+#     # # Download a PDF file from Google Drive
+#     pdf_url = "https://drive.google.com/open?id=1e0X3QpqD7ZMy_bdkYiW4r9QAhMe_eG4D"
+#     downloader.download_pdf(pdf_url)
