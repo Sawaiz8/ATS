@@ -190,7 +190,9 @@ def home_page():
         margin={"r": 0, "t": 0, "l": 0, "b": 0}
         )
         st.plotly_chart(map_fig)
-first_run = True
+
+if "first_run" not in st.session_state.keys():
+    st.session_state["first_run"] = True
 if st.session_state["authentication_status"]:
     logout_button = st.sidebar.button("Logout")
     if logout_button:
@@ -224,36 +226,107 @@ if st.session_state["authentication_status"]:
     if session_selector is not None and st.session_state["current_page"] == "Applicant":
         st.session_state["current_session"] = sessions[sessions.session_name == session_selector].reset_index()
         downloader = GoogleDriveDownloader()
-        # Read form data of relevant session
+        # Read data of relevant session
         csv_files = pd.DataFrame(st.session_state["current_session"])
 
-        download_it_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'IT'].sheet_url.values[0]}", f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
-        download_sel_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'CHESS'].sheet_url.values[0]}", f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
-        download_chess_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'SEL'].sheet_url.values[0]}", f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+        print(csv_files.columns)
+        #for applicant_name, pdf_link in it_data[["name","cv"]]:
+        #    downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/it_{applicant_name}.pdf")
+        #    it_data.loc[it_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/it_{applicant_name}.pdf"
 
-        it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
-        sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
-        chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+        #for applicant_name, pdf_link in sel_data[["name","cv"]]:
+        #    downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/sel_{applicant_name}.pdf")
+        #    sel_data.loc[sel_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/sel_{applicant_name}.pdf"
 
-        for applicant_name, pdf_link in it_data[["name","cv"]]:
-            downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/it_{applicant_name}.pdf")
-            it_data.loc[it_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/it_{applicant_name}.pdf"
+        #for applicant_name, pdf_link in chess_data[["name","cv"]]:
+        #    downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/chess_{applicant_name}.pdf")
+        #    chess_data.loc[chess_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/chess_{applicant_name}.pdf"
 
-        for applicant_name, pdf_link in sel_data[["name","cv"]]:
-            downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/sel_{applicant_name}.pdf")
-            sel_data.loc[sel_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/sel_{applicant_name}.pdf"
+        if st.session_state["first_run"]:
+            download_it_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'IT']["sheet_url"].values[0]}", f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
+            download_sel_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'CHESS']["sheet_url"].values[0]}", f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
+            download_chess_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'SEL']["sheet_url"].values[0]}", f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
 
-        for applicant_name, pdf_link in chess_data[["name","cv"]]:
-            downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/chess_{applicant_name}.pdf")
-            chess_data.loc[chess_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/chess_{applicant_name}.pdf"
-
-        if first_run:
-            st.session_state["it_data"] = it_data
-            st.session_state["sel_data"] = sel_data
-            st.session_state["chess_data"] = chess_data
-            first_run = not first_run
+            it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
+            sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
+            chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
 
 
+            it_data["applicant_status"] = "Under Review"
+            sel_data["applicant_status"] = "Under Review"
+            chess_data["applicant_status"] = "Under Review"
+            it_data.rename(columns={
+                'Timestamp': 'timestamp',
+                'Email Address': 'email',
+                'Name': 'name',
+                'Age': 'age',
+                'Gender': 'gender',
+                'Phone Number': 'phone_number',
+                'Transport': 'transport',
+                'Have you worked for any NGO before?': 'ngo_work',
+                'City': 'city',
+                'In which area do you currently reside in your city?': 'city_address',
+                'Your Current Occupation': 'occupation',
+                'Institute where you currently study or studied': 'institute',
+                'CV': 'cv',
+                'What computers skills do you have?': 'cs_skills',
+                'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
+                'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
+                'Your Instagram Account:': 'insta_id',
+                'Your LinkedIn Profile:': 'linkedin_id',
+                'Do you have a Discord ID?': 'has_discord'
+            }, inplace=True)
+
+            sel_data.rename(columns={
+                'Timestamp': 'timestamp',
+                'Email Address': 'email',
+                'Name': 'name',
+                'Age': 'age',
+                'Gender': 'gender',
+                'Phone Number': 'phone_number',
+                'Transport': 'transport',
+                'Have you worked for any NGO before?': 'ngo_work',
+                'City': 'city',
+                'In which area do you currently reside in your city?': 'city_address',
+                'Your Current Occupation': 'occupation',
+                'Institute where you currently study or studied': 'institute',
+                'CV': 'cv',
+                'What computers skills do you have?': 'cs_skills',
+                'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
+                'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
+                'Your Instagram Account:': 'insta_id',
+                'Your LinkedIn Profile:': 'linkedin_id',
+                'Do you have a Discord ID?': 'has_discord'
+            }, inplace=True)
+
+            chess_data.rename(columns={
+                'Timestamp': 'timestamp',
+                'Email Address': 'email',
+                'Name': 'name',
+                'Age': 'age',
+                'Gender': 'gender',
+                'Phone Number': 'phone_number',
+                'Transport': 'transport',
+                'Have you worked for any NGO before?': 'ngo_work',
+                'City': 'city',
+                'In which area do you currently reside in your city?': 'city_address',
+                'Your Current Occupation': 'occupation',
+                'Institute where you currently study or studied': 'institute',
+                'CV': 'cv',
+                'What computers skills do you have?': 'cs_skills',
+                'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
+                'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
+                'Your Instagram Account:': 'insta_id',
+                'Your LinkedIn Profile:': 'linkedin_id',
+                'Do you have a Discord ID?': 'has_discord'
+            }, inplace=True)
+
+            it_data["city_address"] = ""
+            sel_data["city_address"] = ""
+            chess_data["city_address"] = ""
+
+            st.session_state["it_data"], st.session_state["sel_data"], st.session_state["chess_data"] = it_data, sel_data, chess_data
+            st.session_state["first_run"] = False
         st.sidebar.divider()
 
         home_button = st.sidebar.button(label="Home", use_container_width=True)
