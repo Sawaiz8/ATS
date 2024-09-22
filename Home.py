@@ -229,18 +229,6 @@ if st.session_state["authentication_status"]:
         # Read data of relevant session
         csv_files = pd.DataFrame(st.session_state["current_session"])
 
-        print(csv_files.columns)
-        #for applicant_name, pdf_link in it_data[["name","cv"]]:
-        #    downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/it_{applicant_name}.pdf")
-        #    it_data.loc[it_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/it_{applicant_name}.pdf"
-
-        #for applicant_name, pdf_link in sel_data[["name","cv"]]:
-        #    downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/sel_{applicant_name}.pdf")
-        #    sel_data.loc[sel_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/sel_{applicant_name}.pdf"
-
-        #for applicant_name, pdf_link in chess_data[["name","cv"]]:
-        #    downloader.download_pdf(pdf_link, f"./database/{session_selector}/applicants_resume/chess_{applicant_name}.pdf")
-        #    chess_data.loc[chess_data['name'] == applicant_name, 'path_to_pdf'] = f"./database/{session_selector}/applicants_resume/chess_{applicant_name}.pdf"
 
         if st.session_state["first_run"]:
             download_it_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'IT']["sheet_url"].values[0]}", f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
@@ -321,9 +309,25 @@ if st.session_state["authentication_status"]:
                 'Do you have a Discord ID?': 'has_discord'
             }, inplace=True)
 
+            for name, resume in it_data[["name", "cv"]].values:
+                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name}_resume_it.pdf")
+                    it_data.loc[it_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name}_resume_it.pdf"
+            for name, resume in sel_data[["name", "cv"]].values:
+                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name}_resume_sel.pdf")
+                    sel_data.loc[sel_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name}_resume_it.pdf"
+
+            for name, resume in chess_data[["name", "cv"]].values:
+                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name}_resume_chess.pdf")
+                    chess_data.loc[chess_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name}_resume_it.pdf"
+
+
             it_data["city_address"] = ""
             sel_data["city_address"] = ""
             chess_data["city_address"] = ""
+
+            it_data.to_csv(f"./database/{session_selector}/applicants_form_data/it_applicant_data.csv")
+            chess_data.to_csv(f"./database/{session_selector}/applicants_form_data/chess_applicant_data.csv")
+            sel_data.to_csv(f"./database/{session_selector}/applicants_form_data/sel_applicant_data.csv")
 
             st.session_state["it_data"], st.session_state["sel_data"], st.session_state["chess_data"] = it_data, sel_data, chess_data
             st.session_state["first_run"] = False
