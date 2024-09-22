@@ -6,4 +6,6 @@ streamlit-pdf-reader==0.0.5
 plotly==5.23.0
 python-dotenv==1.0.1
 streamlit_authenticator
-google-api-python-client
+google-api-python-client 
+google-auth-httplib2 
+google-auth-oauthlib
