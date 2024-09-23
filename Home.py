@@ -231,9 +231,9 @@ if st.session_state["authentication_status"]:
 
 
         if st.session_state["first_run"]:
-            download_it_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'IT']["sheet_url"].values[0]}", f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
-            download_sel_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'CHESS']["sheet_url"].values[0]}", f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
-            download_chess_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'SEL']["sheet_url"].values[0]}", f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+            download_it_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'IT']['sheet_url'].values[0]}", f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
+            download_sel_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'CHESS']['sheet_url'].values[0]}", f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
+            download_chess_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'SEL']['sheet_url'].values[0]}", f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
 
             it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
             sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
