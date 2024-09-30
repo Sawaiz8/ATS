@@ -13,20 +13,12 @@ def view_rejected():
     sel["email_status"] = "Unsent"
     with tab1:
         st.write("Rejected IT Applications: ")
-        st.dataframe(it[it.applicant_status == "Rejected"][["name", "email", "gender", "phone_number", "email_status"]])
-        email_button = st.button(label="Send Emails ✉️", key="it_email")
+        st.dataframe(it[it.applicant_status == "Rejected"][["name", "email", "gender", "phone_number"]])
 
     with tab2:
         st.write("Rejected CHESS Applications: ")
-        st.dataframe(sel[sel.applicant_status == "Rejected"][["name", "email", "gender", "phone_number", "email_status"]])
-        email_button = st.button(label="Send Emails ✉️", key="chess_email")
+        st.dataframe(sel[sel.applicant_status == "Rejected"][["name", "email", "gender", "phone_number"]])
 
     with tab3:
         st.write("Rejected SEL Applications: ")
-        st.dataframe(chess[chess.applicant_status == "Rejected"][["name", "email", "gender", "phone_number", "email_status"]])
-        email_button = st.button(label="Send Emails ✉️", key="sel_email")
-
-
-
-    if email_button:
-        st.toast("Email Sent!")
+        st.dataframe(chess[chess.applicant_status == "Rejected"][["name", "email", "gender", "phone_number"]])

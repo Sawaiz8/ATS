@@ -56,9 +56,15 @@ def it_applicants():
         csv_files = pd.DataFrame(st.session_state["current_session"])
         action_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
         action_row.empty()
+        interview_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
         accept_button = action_row.button(label="Accept")
         reject_button = action_row.button(label="Reject")
         action_row.empty()
+        interview_row.empty()
+        schedule_interview_button = interview_row.button(label="Schedule Interview")
+        approve_interview_button = interview_row.button(label="Approve Interview")
+        interview_row.empty()
+
         if accept_button:
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
             st.session_state["it_data"] = it_data
@@ -66,6 +72,16 @@ def it_applicants():
             st.rerun()
         elif reject_button:
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
+            st.session_state["it_data"] = it_data
+            it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
+            st.rerun()
+        elif schedule_interview_button:
+            it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Scheduled'
+            st.session_state["it_data"] = it_data
+            it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
+            st.rerun()
+        elif approve_interview_button:
+            it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Approved'
             st.session_state["it_data"] = it_data
             it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
             st.rerun()

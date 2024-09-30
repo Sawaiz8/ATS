@@ -1,5 +1,5 @@
 ./.ipynb_checkpoints
 ats/
 pyrightconfig.json
-./pages/__pycache__
+./pages/__pycache__/
 ./google_connector/__pycache__
