@@ -63,6 +63,11 @@ def sel_applicants():
         accept_button = action_row.button(label="Accept")
         reject_button = action_row.button(label="Reject")
         action_row.empty()
+        interview_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
+        interview_row.empty()
+        schedule_interview_button = interview_row.button(label="Schedule Interview")
+        approve_interview_button = interview_row.button(label="Approve Interview")
+        interview_row.empty()
         if accept_button:
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
             st.toast('Applicant Accepted', icon="❗")
@@ -73,6 +78,16 @@ def sel_applicants():
         elif reject_button:
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
             st.toast('Applicant Rejected', icon="❗")
+            st.session_state["sel_data"] = sel_data
+            sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
+            st.rerun()
+        elif schedule_interview_button:
+            sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Scheduled'
+            st.session_state["sel_data"] = sel_data
+            sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
+            st.rerun()
+        elif approve_interview_button:
+            sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Approved'
             st.session_state["sel_data"] = sel_data
             sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
             st.rerun()

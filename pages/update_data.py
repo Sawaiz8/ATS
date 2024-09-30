@@ -4,7 +4,7 @@ from google_connector.google_sheet_download import GoogleDriveDownloader
 from time import sleep
 
 
-def update_data(project_name, chess, it, sel, chess_email=None, it_email=None, sel_email=None, chess_subject=None, it_subject=None, sel_subject=None):
+def update_data(project_name, chess, it, sel):
     downloader = GoogleDriveDownloader()
     sessions = pd.read_csv("./database/sessions.csv")
     if len(it) != 0:
@@ -30,23 +30,9 @@ def update_data(project_name, chess, it, sel, chess_email=None, it_email=None, s
         st.success("Updated SEL file")
 
 
-
-    email_prompts = pd.read_csv("./database/email_prompts.csv")
-    update_condition = email_prompts.session_name == project_name
-    email_prompts.loc[update_condition, ["it_prompt"]] = it_email
-    email_prompts.loc[update_condition, ["sel_prompt"]] = chess_email
-    email_prompts.loc[update_condition, ["chess_prompt"]] = sel_email
-
-    email_prompts.loc[update_condition, ["it_header"]] = it_subject
-    email_prompts.loc[update_condition, ["sel_header"]] = sel_subject
-    email_prompts.loc[update_condition, ["chess_header"]] = chess_subject
-
     sessions.to_csv("./database/sessions.csv", index=False)
-    email_prompts.to_csv("./database/email_prompts.csv",index=False)
 
 def update_page():
-    email_prompts = pd.read_csv("./database/email_prompts.csv")
-
     st.title("Update Session Data")
     selected_project = st.selectbox("Choose a project", st.session_state["project_sessions"], key="update_selector")
     if selected_project is not None:
@@ -56,24 +42,11 @@ def update_page():
         it_link = st.text_input("Link to IT Sheet")
         st.subheader("SEL")
         sel_link = st.text_input("Link to SEL Sheet")
-
-        it_email_container  = st.expander("IT Email Prompt")
-        it_email_subject = it_email_container.text_input(label="Subject", value=email_prompts[email_prompts.session_name == selected_project]["it_header"].values[0], key="it_email_subject")
-        it_email_prompt = it_email_container.text_area(label="Enter prompt:",value=email_prompts[email_prompts.session_name == selected_project]["it_prompt"].values[0], key="it_email_prompt")
-
-        sel_email_container = st.expander("SEL Email Prompt")
-        sel_email_subject = sel_email_container.text_input(label="Subject", value=email_prompts[email_prompts.session_name == selected_project]["sel_header"].values[0], key="sel_email_subject")
-        sel_email_prompt = sel_email_container.text_area(label="Prompt",value=email_prompts[email_prompts.session_name == selected_project]["sel_prompt"].values[0], placeholder="SEL email prompt", key="sel_email_prompt")
-
-        chess_email_container = st.expander("Chess Email Prompt")
-        chess_email_subject = chess_email_container.text_input(label="Subject", value=email_prompts[email_prompts.session_name == selected_project]["chess_header"].values[0], key="chess_email_subject")
-        chess_email_prompt = chess_email_container.text_area(label="Prompt",value=email_prompts[email_prompts.session_name == selected_project]["chess_prompt"].values[0] ,placeholder="CHESS email prompt", key="chess_email_prompt")
-
         with st.popover("Update"):
             st.error("Are you sure?")
             update_button = st.button("Confirm")
             if update_button:
-                update_data(selected_project, chess_link, it_link, sel_link, chess_email_prompt, it_email_prompt, sel_email_prompt, chess_email_subject, it_email_subject, sel_email_subject)
+                update_data(selected_project, chess_link, it_link, sel_link)
                 st.success("Successfully Updated Data")
                 sleep(1.0)
                 st.rerun()
