@@ -19,6 +19,8 @@ from pages.Chess_Applicants import chess_applicants
 
 from pages.accepted import view_accepted
 from pages.rejected import view_rejected
+from pages.interview_scheduled import view_scheduled
+from pages.interview_approved import view_approved
 
 from pages.hr import hr_page
 from pages.update_data import update_page
@@ -355,6 +357,10 @@ if st.session_state["authentication_status"]:
             chess_button = st.button(label="Home", use_container_width=True, key="chess_button")
             chess_applicants_button = st.button(label="Individual Applicants", use_container_width=True, key="chess_applicant")
 
+        st.sidebar.caption("Interviews")
+        int_sch, int_app = st.sidebar.columns(2)
+        interview_scheduled = int_sch.button("Scheduled", use_container_width=True)
+        interview_approved = int_app.button("Approved", use_container_width=True)
         st.sidebar.caption("Applicants")
         acc, rej = st.sidebar.columns(2)
         accepted = acc.button("Accepted", use_container_width=True)
@@ -376,6 +382,10 @@ if st.session_state["authentication_status"]:
             st.session_state["on_page"] = "Accepted"
         elif rejected:
             st.session_state["on_page"] = "Rejected"
+        elif interview_scheduled:
+            st.session_state["on_page"] = "Scheduled"
+        elif interview_approved:
+            st.session_state["on_page"] = "Approved"
         else:
             pass
 
@@ -407,6 +417,10 @@ if st.session_state["authentication_status"]:
             hr_page()
         case "Updater":
             update_page()
+        case "Scheduled":
+            view_scheduled()
+        case "Approved":
+            view_approved()
         case _:
             pass
 
