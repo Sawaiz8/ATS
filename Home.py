@@ -169,7 +169,7 @@ def home_page():
         map_df["lon"] = map_df["city_address"].apply(lambda x: get_coordinates(x)[1])
 
         # Read mapbox access token from env
-        MAPBOX_ACCESS_TOKEN = os.getenv("MAPBOX_ACCESS_TOKEN")
+        MAPBOX_ACCESS_TOKEN = st.secrets["MAPBOX_ACCESS_TOKEN"]
 
         map_fig = go.Figure(go.Scattermapbox(
             lon = map_df["lon"], lat = map_df["lat"],
