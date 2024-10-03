@@ -5,3 +5,4 @@ pages/__pycache__
 google_connector/__pycache__
 database/
 .streamlit/secrets.toml
+token.json
