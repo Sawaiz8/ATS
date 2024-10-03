@@ -6,6 +6,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
+import streamlit as st
+import json
 
 class GoogleDriveDownloader:
     SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
@@ -13,7 +15,9 @@ class GoogleDriveDownloader:
     def __init__(self, creds_file='token.json', client_secret_file='credentials.json'):
         """Initializes the downloader with paths to credentials and client secret files."""
         self.creds_file = creds_file
-        self.client_secret_file = client_secret_file
+        # self.client_secret_file = client_secret_file
+        self.client_secret_file = st.secrets["google_drive_credentials"]["credentials"]
+
         self.creds = None
         self.service = None
         self._authenticate()
@@ -29,7 +33,7 @@ class GoogleDriveDownloader:
             if self.creds and self.creds.expired and self.creds.refresh_token:
                 self.creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(self.client_secret_file, self.SCOPES)
+                flow = InstalledAppFlow.from_client_config(json.loads(self.client_secret_file), self.SCOPES)
                 self.creds = flow.run_local_server(port=0)
             # Save credentials for future use
             with open(self.creds_file, "w") as token:
