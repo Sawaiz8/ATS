@@ -30,18 +30,22 @@ from yaml.loader import SafeLoader
 
 load_dotenv()
 
-with open("config.yaml") as file:
-    config = yaml.load(file, Loader=SafeLoader)
-
-
+credentials = {
+    'usernames': {
+        'admin': {
+            'email': st.secrets['credentials']['usernames']['admin']['email'],
+            'name': st.secrets['credentials']['usernames']['admin']['name'],
+            'password': st.secrets['credentials']['usernames']['admin']['password']
+        }
+    }
+}
 authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days'],
-    config['preauthorized']
+    credentials,
+    st.secrets['cookie']['name'],
+    st.secrets['cookie']['key'],
+    st.secrets['cookie']['expiry_days'],
+    st.secrets['preauthorized']
 )
-
 
 def auth_page():
     name, st.session_state["authentication_status"], username = authenticator.login('main')
