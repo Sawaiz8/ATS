@@ -1,6 +1,7 @@
-./.ipynb_checkpoints
+.ipynb_checkpoints
 ats/
 pyrightconfig.json
-./pages/__pycache__/
-./google_connector/__pycache__/
-./database/
+pages/__pycache__
+google_connector/__pycache__
+database/
+.streamlit/secrets.toml
