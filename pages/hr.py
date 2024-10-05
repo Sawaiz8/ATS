@@ -5,12 +5,13 @@ from os import mkdir
 from shutil import rmtree
 from time import sleep
 import glob
+import os
 def save_project(project_name, it_file, chess_file, sel_file):
     downloader = GoogleDriveDownloader()
     try:
-        it_sheet = downloader.download_google_sheet(it_file, "it_file.csv")
-        sel_sheet = downloader.download_google_sheet(sel_file, "sel_file.csv")
-        chess_sheet = downloader.download_google_sheet(chess_file, "chess_file.csv")
+        it_sheet = downloader.download_google_sheet(it_file, "temp_files/it_file.csv")
+        sel_sheet = downloader.download_google_sheet(sel_file, "temp_files/sel_file.csv")
+        chess_sheet = downloader.download_google_sheet(chess_file, "temp_files/chess_file.csv")
 
     except:
         st.error("Error downloading files")
@@ -22,9 +23,9 @@ def save_project(project_name, it_file, chess_file, sel_file):
     mkdir(f"./database/{project_name}")
     mkdir(f"./database/{project_name}/applicants_form_data")
     mkdir(f"./database/{project_name}/applicants_resume")
-    it = pd.read_csv("it_file.csv")
-    chess = pd.read_csv("chess_file.csv")
-    sel = pd.read_csv("sel_file.csv")
+    it = pd.read_csv("temp_files/it_file.csv")
+    chess = pd.read_csv("temp_files/chess_file.csv")
+    sel = pd.read_csv("temp_files/sel_file.csv")
     it.rename(columns={
         'Timestamp': 'timestamp',
         'Email Address': 'email',
@@ -111,6 +112,9 @@ def save_project(project_name, it_file, chess_file, sel_file):
     sessions.loc[len(sessions.index)] = [project_name, "CHESS", project_name, f"{project_name}/applicants_form_data/chess_applicant_data.csv", chess_file]
 
     sessions.to_csv("./database/sessions.csv", index=False)
+    os.remove("temp_files/it_file.csv")
+    os.remove("temp_files/sel_file.csv")
+    os.remove("temp_files/chess_file.csv")
     st.toast(f"{project_name} created successfully!")
 
 

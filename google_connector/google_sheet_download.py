@@ -1,46 +1,34 @@
 import os
 import io
+import streamlit as st
 from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
-import streamlit as st
 import json
 
 class GoogleDriveDownloader:
     SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 
-    def __init__(self, creds_file='token.json', client_secret_file='credentials.json'):
-        """Initializes the downloader with paths to credentials and client secret files."""
-        self.creds_file = creds_file
-        # self.client_secret_file = client_secret_file
-        self.client_secret_file = st.secrets["google_drive_credentials"]["credentials"]
-
+    def __init__(self):
+        """Initializes the downloader using Streamlit secrets for Google Drive credentials."""
         self.creds = None
         self.service = None
         self._authenticate()
 
     def _authenticate(self):
-        """Authenticates the user and saves/loads credentials."""
-        # Load saved credentials from file if available
-        if os.path.exists(self.creds_file):
-            self.creds = Credentials.from_authorized_user_file(self.creds_file, self.SCOPES)
-        
-        # If there are no valid credentials, prompt the user to log in
-        if not self.creds or not self.creds.valid:
-            if self.creds and self.creds.expired and self.creds.refresh_token:
-                self.creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_config(json.loads(self.client_secret_file), self.SCOPES)
-                self.creds = flow.run_local_server(port=0)
-            # Save credentials for future use
-            with open(self.creds_file, "w") as token:
-                token.write(self.creds.to_json())
+        """Authenticates using the service account credentials from Streamlit secrets and initializes the Drive API client."""
+        try:
+            # Retrieve credentials from Streamlit secrets
+            credentials_info = st.secrets["google_drive_credentials"]["credentials"]
+            self.creds = Credentials.from_service_account_info(json.loads(credentials_info), scopes=self.SCOPES)
 
-        # Initialize the Drive API client
-        self.service = build("drive", "v3", credentials=self.creds)
+            # Initialize the Drive API client
+            self.service = build("drive", "v3", credentials=self.creds)
+
+        except Exception as e:
+            print(f"Failed to authenticate using service account: {e}")
 
     def download_google_sheet(self, sheet_url, output_file='sheet.csv'):
         """Downloads a Google Sheet as a CSV file (.csv).
@@ -107,15 +95,3 @@ class GoogleDriveDownloader:
         except HttpError as error:
             print(f"An error occurred: {error}")
             return None
-
-# # Example usage:
-# if __name__ == "__main__":
-#     downloader = GoogleDriveDownloader()
-
-#     # Download a Google Sheet as a CSV file
-#     sheet_url = "https://docs.google.com/spreadsheets/d/1hRe35C02f6AzvcsNb8PkBjgAAh1krZU1-YlSuDNG8Ow/edit?resourcekey=&gid=983807525#gid=983807525"
-#     downloader.download_google_sheet(sheet_url)
-
-#     # # Download a PDF file from Google Drive
-#     pdf_url = "https://drive.google.com/open?id=1e0X3QpqD7ZMy_bdkYiW4r9QAhMe_eG4D"
-#     downloader.download_pdf(pdf_url)

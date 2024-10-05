@@ -4,4 +4,3 @@ pyrightconfig.json
 pages/__pycache__
 google_connector/__pycache__
 .streamlit/secrets.toml
-token.json
