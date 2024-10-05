@@ -110,5 +110,5 @@ class GoogleDriveDownloader:
             logging.info(f"Download complete! File saved as '{output_file}'.")
 
         except HttpError as error:
-            logging.error(f"An error occurred: {error}")
+            logging.info(f"An error occurred: {error}")
             return None
