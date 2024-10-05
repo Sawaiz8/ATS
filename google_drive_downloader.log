@@ -1,0 +1,21 @@
+2024-10-05 16:05:52,828 - INFO - Logging is set up.
+2024-10-05 16:05:52,864 - INFO - file_cache is only supported with oauth2client<4.0.0
+2024-10-05 16:05:52,866 - INFO - Successfully authenticated with Google Drive API.
+2024-10-05 16:05:52,867 - INFO - Starting download for Google Sheet with ID: 1hRe35C02f6AzvcsNb8PkBjgAAh1krZU1-YlSuDNG8Ow
+2024-10-05 16:05:54,560 - INFO - Download 100% complete.
+2024-10-05 16:05:54,560 - INFO - Download complete! File saved as './database/Project Salam 2/applicants_form_data/it_applicant_data.csv'.
+2024-10-05 16:05:54,561 - INFO - Starting download for Google Sheet with ID: 1hRe35C02f6AzvcsNb8PkBjgAAh1krZU1-YlSuDNG8Ow
+2024-10-05 16:05:55,498 - INFO - Download 100% complete.
+2024-10-05 16:05:55,499 - INFO - Download complete! File saved as './database/Project Salam 2/applicants_form_data/chess_applicant_data.csv'.
+2024-10-05 16:05:55,501 - INFO - Starting download for Google Sheet with ID: 1hRe35C02f6AzvcsNb8PkBjgAAh1krZU1-YlSuDNG8Ow
+2024-10-05 16:05:56,452 - INFO - Download 100% complete.
+2024-10-05 16:05:56,453 - INFO - Download complete! File saved as './database/Project Salam 2/applicants_form_data/sel_applicant_data.csv'.
+2024-10-05 16:05:56,473 - INFO - Starting download for PDF with ID: 1e0X3QpqD7ZMy_bdkYiW4r9QAhMe_eG4D
+2024-10-05 16:05:59,198 - INFO - Download 100% complete.
+2024-10-05 16:05:59,199 - INFO - Download complete! File saved as './database/Project Salam 2/applicants_resume/Sawaiz_resume_it.pdf'.
+2024-10-05 16:05:59,200 - INFO - Starting download for PDF with ID: 1e0X3QpqD7ZMy_bdkYiW4r9QAhMe_eG4D
+2024-10-05 16:06:02,275 - INFO - Download 100% complete.
+2024-10-05 16:06:02,275 - INFO - Download complete! File saved as './database/Project Salam 2/applicants_resume/Sawaiz_resume_sel.pdf'.
+2024-10-05 16:06:02,277 - INFO - Starting download for PDF with ID: 1e0X3QpqD7ZMy_bdkYiW4r9QAhMe_eG4D
+2024-10-05 16:06:05,175 - INFO - Download 100% complete.
+2024-10-05 16:06:05,177 - INFO - Download complete! File saved as './database/Project Salam 2/applicants_resume/Sawaiz_resume_chess.pdf'.

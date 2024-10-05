@@ -1,6 +1,7 @@
 import os
 import io
 import streamlit as st
+import logging
 from google.auth.transport.requests import Request
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
@@ -15,7 +16,20 @@ class GoogleDriveDownloader:
         """Initializes the downloader using Streamlit secrets for Google Drive credentials."""
         self.creds = None
         self.service = None
+        self._setup_logging()
         self._authenticate()
+
+    def _setup_logging(self):
+        """Sets up logging for the class."""
+        logging.basicConfig(
+            level=logging.INFO,  # Set the logging level
+            format='%(asctime)s - %(levelname)s - %(message)s',  # Log format
+            handlers=[
+                logging.FileHandler("google_drive_downloader.log"),  # Log to a file
+                logging.StreamHandler()  # Also log to the console
+            ]
+        )
+        logging.info("Logging is set up.")
 
     def _authenticate(self):
         """Authenticates using the service account credentials from Streamlit secrets and initializes the Drive API client."""
@@ -26,9 +40,10 @@ class GoogleDriveDownloader:
 
             # Initialize the Drive API client
             self.service = build("drive", "v3", credentials=self.creds)
+            logging.info("Successfully authenticated with Google Drive API.")
 
         except Exception as e:
-            print(f"Failed to authenticate using service account: {e}")
+            logging.error(f"Failed to authenticate using service account: {e}")
 
     def download_google_sheet(self, sheet_url, output_file='sheet.csv'):
         """Downloads a Google Sheet as a CSV file (.csv).
@@ -40,6 +55,7 @@ class GoogleDriveDownloader:
         try:
             # Extract file ID from the Google Sheet URL
             file_id = sheet_url.split("/d/")[1].split("/")[0]
+            logging.info(f"Starting download for Google Sheet with ID: {file_id}")
 
             # Request to export the Google Sheet as a CSV file
             request = self.service.files().export_media(fileId=file_id, mimeType='text/csv')
@@ -49,16 +65,16 @@ class GoogleDriveDownloader:
             done = False
             while not done:
                 status, done = downloader.next_chunk()
-                print(f"Download {int(status.progress() * 100)}% complete.")
+                logging.info(f"Download {int(status.progress() * 100)}% complete.")
 
             # Write the downloaded content to a CSV file
             with open(output_file, "wb") as output:
                 output.write(file_data.getvalue())
 
-            print(f"Download complete! File saved as '{output_file}'.")
+            logging.info(f"Download complete! File saved as '{output_file}'.")
 
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            logging.error(f"An error occurred: {error}")
             return None
 
     def _extract_file_id(self, url):
@@ -75,6 +91,7 @@ class GoogleDriveDownloader:
         try:
             # Extract file ID from the Google Drive URL
             file_id = self._extract_file_id(pdf_url)
+            logging.info(f"Starting download for PDF with ID: {file_id}")
 
             # Request to download the PDF file
             request = self.service.files().get_media(fileId=file_id)
@@ -84,14 +101,14 @@ class GoogleDriveDownloader:
             done = False
             while not done:
                 status, done = downloader.next_chunk()
-                print(f"Download {int(status.progress() * 100)}% complete.")
+                logging.info(f"Download {int(status.progress() * 100)}% complete.")
 
             # Write the downloaded content to a PDF file
             with open(output_file, "wb") as output:
                 output.write(file_data.getvalue())
 
-            print(f"Download complete! File saved as '{output_file}'.")
+            logging.info(f"Download complete! File saved as '{output_file}'.")
 
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            logging.error(f"An error occurred: {error}")
             return None
