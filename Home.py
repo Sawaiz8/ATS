@@ -60,7 +60,7 @@ def intro_page():
 
 
 def home_page():
-    app_data = [st.session_state["it_data"], st.session_state["chess_data"], st.session_state["sel_data"]]
+    app_data = [st.session_state["it_data"],st.session_state["sel_data"], st.session_state["chess_data"]]
     app_data = pd.concat(app_data)
     tab1, tab2, tab3 = st.tabs(["🔎 Overview", "📈 Charts", "📍 Map"])
     with tab1:
@@ -263,9 +263,6 @@ if st.session_state["authentication_status"]:
                 'Your Current Occupation': 'occupation',
                 'Institute where you currently study or studied': 'institute',
                 'CV': 'cv',
-                'What computers skills do you have?': 'cs_skills',
-                'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
-                'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
                 'Your Instagram Account:': 'insta_id',
                 'Your LinkedIn Profile:': 'linkedin_id',
                 'Do you have a Discord ID?': 'has_discord'
@@ -285,9 +282,6 @@ if st.session_state["authentication_status"]:
                 'Your Current Occupation': 'occupation',
                 'Institute where you currently study or studied': 'institute',
                 'CV': 'cv',
-                'What computers skills do you have?': 'cs_skills',
-                'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
-                'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
                 'Your Instagram Account:': 'insta_id',
                 'Your LinkedIn Profile:': 'linkedin_id',
                 'Do you have a Discord ID?': 'has_discord'
@@ -307,24 +301,21 @@ if st.session_state["authentication_status"]:
                 'Your Current Occupation': 'occupation',
                 'Institute where you currently study or studied': 'institute',
                 'CV': 'cv',
-                'What computers skills do you have?': 'cs_skills',
-                'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
-                'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
                 'Your Instagram Account:': 'insta_id',
                 'Your LinkedIn Profile:': 'linkedin_id',
                 'Do you have a Discord ID?': 'has_discord'
             }, inplace=True)
 
             for name, resume in it_data[["name", "cv"]].values:
-                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name}_resume_it.pdf")
-                    it_data.loc[it_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name}_resume_it.pdf"
+                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_it.pdf")
+                    it_data.loc[it_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_it.pdf"
             for name, resume in sel_data[["name", "cv"]].values:
-                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name}_resume_sel.pdf")
-                    sel_data.loc[sel_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name}_resume_it.pdf"
+                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_sel.pdf")
+                    sel_data.loc[sel_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_sel.pdf"
 
             for name, resume in chess_data[["name", "cv"]].values:
-                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name}_resume_chess.pdf")
-                    chess_data.loc[chess_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name}_resume_it.pdf"
+                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_chess.pdf")
+                    chess_data.loc[chess_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_chess.pdf"
 
 
             it_data["city_address"] = ""

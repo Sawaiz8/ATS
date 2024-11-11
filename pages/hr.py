@@ -1,7 +1,7 @@
 from google_connector.google_sheet_download import GoogleDriveDownloader
 import streamlit as st
 import pandas as pd
-from os import mkdir
+from os import makedirs
 from shutil import rmtree
 from time import sleep
 import glob
@@ -20,12 +20,17 @@ def save_project(project_name, it_file, chess_file, sel_file):
     if project_name in sessions["session_name"]:
         st.error("Project with same name already exists!")
         return
-    mkdir(f"./database/{project_name}")
-    mkdir(f"./database/{project_name}/applicants_form_data")
-    mkdir(f"./database/{project_name}/applicants_resume")
+    makedirs(f"./database/{project_name}", exist_ok=True)
+    makedirs(f"./database/{project_name}/applicants_form_data", exist_ok=True)
+    makedirs(f"./database/{project_name}/applicants_resume", exist_ok=True)
+
     it = pd.read_csv("temp_files/it_file.csv")
     chess = pd.read_csv("temp_files/chess_file.csv")
     sel = pd.read_csv("temp_files/sel_file.csv")
+    it.applymap(lambda x: x.strip() if isinstance(x, str) else x)  # Strip spaces from string values
+    chess = chess.applymap(lambda x: x.strip() if isinstance(x, str) else x)  # Strip spaces from string values
+    sel = sel.applymap(lambda x: x.strip() if isinstance(x, str) else x)  # Strip spaces from string values
+    
     it.rename(columns={
         'Timestamp': 'timestamp',
         'Email Address': 'email',
@@ -40,9 +45,6 @@ def save_project(project_name, it_file, chess_file, sel_file):
         'Your Current Occupation': 'occupation',
         'Institute where you currently study or studied': 'institute',
         'CV': 'CV',
-        'What computers skills do you have?': 'cs_skills',
-        'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
-        'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
         'Your Instagram Account:': 'insta_id',
         'Your LinkedIn Profile:': 'linkedin_id',
         'Do you have a Discord ID?': 'has_discord'
@@ -62,9 +64,6 @@ def save_project(project_name, it_file, chess_file, sel_file):
         'Your Current Occupation': 'occupation',
         'Institute where you currently study or studied': 'institute',
         'CV': 'CV',
-        'What computers skills do you have?': 'cs_skills',
-        'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
-        'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
         'Your Instagram Account:': 'insta_id',
         'Your LinkedIn Profile:': 'linkedin_id',
         'Do you have a Discord ID?': 'has_discord'
@@ -84,24 +83,21 @@ def save_project(project_name, it_file, chess_file, sel_file):
         'Your Current Occupation': 'occupation',
         'Institute where you currently study or studied': 'institute',
         'CV': 'CV',
-        'What computers skills do you have?': 'cs_skills',
-        'Do you have any experience using Canva, or any tool from the Adobe media kit like Photoshop, Lightroom e.t.c': 'adobe_canva',
-        'Do you have any other computer skills that you believe is beneficial to teach kids between the age of 10 to 16?': 'other_skills',
         'Your Instagram Account:': 'insta_id',
         'Your LinkedIn Profile:': 'linkedin_id',
         'Do you have a Discord ID?': 'has_discord'
     }, inplace=True)
 
     for name, resume in it[["name", "CV"]].values:
-        downloader.download_pdf(resume, f"./database/{project_name}/applicants_resume/{name}_resume_it.pdf")
+        downloader.download_pdf(resume, f"./database/{project_name}/applicants_resume/{name.replace(' ', '_')}_resume_it.pdf")
         it.loc[it.name == name, "path_to_pdf"] = f"/database/{project_name}/applicants_resume/{name}_resume_it.pdf"
     for name, resume in sel[["name", "CV"]].values:
-        downloader.download_pdf(resume, f"./database/{project_name}/applicants_resume/{name}_resume_sel.pdf")
-        sel.loc[sel.name == name, "path_to_pdf"] = f"/database/{project_name}/applicants_resume/{name}_resume_it.pdf"
+        downloader.download_pdf(resume, f"./database/{project_name}/applicants_resume/{name.replace(' ', '_')}_resume_sel.pdf")
+        sel.loc[sel.name == name, "path_to_pdf"] = f"/database/{project_name}/applicants_resume/{name.replace(' ', '_')}_resume_sel.pdf"
 
     for name, resume in chess[["name", "CV"]].values:
-        downloader.download_pdf(resume, f"./database/{project_name}/applicants_resume/{name}_resume_chess.pdf")
-        chess.loc[chess.name == name, "path_to_pdf"] = f"/database/{project_name}/applicants_resume/{name}_resume_it.pdf"
+        downloader.download_pdf(resume, f"./database/{project_name}/applicants_resume/{name.replace(' ', '_')}_resume_chess.pdf")
+        chess.loc[chess.name == name, "path_to_pdf"] = f"/database/{project_name}/applicants_resume/{name.replace(' ', '_')}_resume_chess.pdf"
 
     it.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv", index=False)
     chess.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv", index=False)

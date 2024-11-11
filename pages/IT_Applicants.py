@@ -4,6 +4,25 @@ import streamlit as st
 from streamlit_extras.row import row
 from streamlit_pdf_reader import pdf_reader
 
+renamed_columns = [
+    'timestamp',           # from 'Timestamp'
+    'email',              # from 'Email Address'
+    'name',               # from 'Name'
+    'age',                # from 'Age'
+    'gender',             # from 'Gender'
+    'phone_number',       # from 'Phone Number'
+    'transport',          # from 'Transport'
+    'ngo_work',           # from 'Have you worked for any NGO before?'
+    'city',               # from 'City'
+    'city_address',       # from 'In which area do you currently reside in your city?'
+    'occupation',         # from 'Your Current Occupation'
+    'institute',          # from 'Institute where you currently study or studied'
+    'cv',                 # from 'CV'
+    'insta_id',          # from 'Your Instagram Account:'
+    'linkedin_id',        # from 'Your LinkedIn Profile:'
+    'has_discord'         # from 'Do you have a Discord ID?'
+]
+
 def it_applicants():
     # Read IT data from CSV file
     csv_files = pd.DataFrame(st.session_state["current_session"])
@@ -40,19 +59,29 @@ def it_applicants():
             st.markdown(f"***email***: {current_applicant['email'].values[0]}")
             st.markdown(f"***Has Discord?***: {current_applicant['has_discord'].values[0]}")
 
-        col_4, col_5, col_6 = st.columns(3)
-        container_1 = col_4.container(border=True, height=150)
-        container_2 = col_5.container(border=True, height=150)
-        container_3 = col_6.container(border=True, height=150)
-        container_1.caption("Computer Skills")
-        container_1.markdown(current_applicant["cs_skills"].values[0])
-        container_2.caption("Experience using Canva, Adobe...")
-        container_2.markdown(current_applicant["adobe_canva"].values[0])
-        container_3.caption("Any other computer skills benefitting kids aged 10-16?")
-        container_3.markdown(current_applicant["other_skills"].values[0])
+                # Get columns not in renamed_columns list
+        extra_columns = [col for col in it_data.columns if col not in renamed_columns + ['applicant_status', 'path_to_pdf']]
+        
+        # Create rows of 3 columns each
+        for i in range(0, len(extra_columns), 3):
+            row_cols = st.columns(3)
+            
+            # Create containers for each column in the row
+            for j in range(3):
+                if i+j < len(extra_columns):
+                    col = extra_columns[i+j]
+                    container = row_cols[j].container(border=True, height=150)
+                    container.caption(col)
+                    container.markdown(current_applicant[col].values[0])
+
         pdf_source=current_applicant["path_to_pdf"].values[0]
+        
         if pdf_source:
-            pdf_reader(pdf_source)
+            try:
+                # Handle file paths with spaces
+                pdf_reader(pdf_source)
+            except ValueError as e:
+                st.error(f"Could not load PDF: {pdf_source}")
         csv_files = pd.DataFrame(st.session_state["current_session"])
         action_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
         action_row.empty()

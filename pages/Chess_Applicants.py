@@ -4,6 +4,24 @@ import streamlit as st
 from streamlit_extras.row import row
 from streamlit_pdf_reader import pdf_reader
 
+renamed_columns = [
+    'timestamp',           # from 'Timestamp'
+    'email',              # from 'Email Address'
+    'name',               # from 'Name'
+    'age',                # from 'Age'
+    'gender',             # from 'Gender'
+    'phone_number',       # from 'Phone Number'
+    'transport',          # from 'Transport'
+    'ngo_work',           # from 'Have you worked for any NGO before?'
+    'city',               # from 'City'
+    'city_address',       # from 'In which area do you currently reside in your city?'
+    'occupation',         # from 'Your Current Occupation'
+    'institute',          # from 'Institute where you currently study or studied'
+    'cv',                 # from 'CV'
+    'insta_id',          # from 'Your Instagram Account:'
+    'linkedin_id',        # from 'Your LinkedIn Profile:'
+    'has_discord'         # from 'Do you have a Discord ID?'
+]
 
 def chess_applicants():
     # Read Chess data from CSV file
@@ -44,10 +62,29 @@ def chess_applicants():
             st.markdown(f"***email***: {current_applicant['email'].values[0]}")
             st.markdown(f"***Has Discord?***: {current_applicant['has_discord'].values[0]}")
 
+                # Get columns not in renamed_columns list
+        extra_columns = [col for col in chess_data.columns if col not in renamed_columns + ['applicant_status', 'path_to_pdf']]
+        
+        # Create rows of 3 columns each
+        for i in range(0, len(extra_columns), 3):
+            row_cols = st.columns(3)
+            
+            # Create containers for each column in the row
+            for j in range(3):
+                if i+j < len(extra_columns):
+                    col = extra_columns[i+j]
+                    container = row_cols[j].container(border=True, height=150)
+                    container.caption(col)
+                    container.markdown(current_applicant[col].values[0])
+
         pdf_source = current_applicant["path_to_pdf"].values[0]
 
         if pdf_source:
-            pdf_reader(pdf_source)
+            try:
+                # Handle file paths with spaces
+                pdf_reader(pdf_source)
+            except ValueError as e:
+                st.error(f"Could not load PDF: {pdf_source}")
         action_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
         action_row.empty()
         accept_button = action_row.button(label="Accept")
