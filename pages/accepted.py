@@ -14,8 +14,9 @@ def view_accepted():
 
     with tab2:
         st.write("Accepted SEL Applications: ")
-        st.dataframe(chess[chess.applicant_status == "Accepted"][["name", "email", "gender", "phone_number"]])
+        st.dataframe(sel[sel.applicant_status == "Accepted"][["name", "email", "gender", "phone_number"]])
 
     with tab3:
         st.write("Accepted CHESS Applications: ")
-        st.dataframe(sel[sel.applicant_status == "Accepted"][["name", "email", "gender", "phone_number"]])
+        st.dataframe(chess[chess.applicant_status == "Accepted"][["name", "email", "gender", "phone_number"]])
+

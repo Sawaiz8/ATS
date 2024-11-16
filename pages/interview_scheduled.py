@@ -14,8 +14,9 @@ def view_scheduled():
 
     with tab2:
         st.write("Interviews Scheduled for SEL Applications: ")
-        st.dataframe(chess[chess.applicant_status == "Interview_Scheduled"][["name", "email", "gender", "phone_number"]])
+        st.dataframe(sel[sel.applicant_status == "Interview_Scheduled"][["name", "email", "gender", "phone_number"]])
 
     with tab3:
         st.write("Interviews Scheduled for CHESS Applications: ")
-        st.dataframe(sel[sel.applicant_status == "Interview_Scheduled"][["name", "email", "gender", "phone_number"]])
+        st.dataframe(chess[chess.applicant_status == "Interview_Scheduled"][["name", "email", "gender", "phone_number"]])
+
