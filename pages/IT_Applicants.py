@@ -27,6 +27,7 @@ def it_applicants():
     # Read IT data from CSV file
     csv_files = pd.DataFrame(st.session_state["current_session"])
     it_data = st.session_state["it_data"]
+    it_status = st.session_state["it_status"]
 
     applicant_dropdown = st.selectbox(
     "Search Individual **IT** Applicants",
@@ -83,34 +84,41 @@ def it_applicants():
             except ValueError as e:
                 st.error(f"Could not load PDF: {pdf_source}")
         csv_files = pd.DataFrame(st.session_state["current_session"])
-        action_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
-        action_row.empty()
-        interview_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
-        accept_button = action_row.button(label="Accept")
+        action_row = row([0.27, 0.4, 0.15, 0.2], vertical_align="center", gap="small")
+        approve_interview_button = action_row.button(label="Approve Interview")
+        schedule_interview_button = action_row.button(label="Interview Scheduled (For HR only)")
         reject_button = action_row.button(label="Reject")
-        action_row.empty()
-        interview_row.empty()
-        schedule_interview_button = interview_row.button(label="Schedule Interview")
-        approve_interview_button = interview_row.button(label="Approve Interview")
-        interview_row.empty()
+        accept_button = action_row.button(label="Accept")
 
         if accept_button:
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
             st.session_state["it_data"] = it_data
             it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
+            it_status.loc[it_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
+            st.session_state["it_status"] = it_status
+            it_status.to_csv(f"./database/cache/it_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
             st.rerun()
         elif reject_button:
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
             st.session_state["it_data"] = it_data
             it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
+            it_status.loc[it_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
+            st.session_state["it_status"] = it_status
+            it_status.to_csv(f"./database/cache/it_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
             st.rerun()
         elif schedule_interview_button:
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Scheduled'
             st.session_state["it_data"] = it_data
             it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
+            it_status.loc[it_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Scheduled'
+            st.session_state["it_status"] = it_status
+            it_status.to_csv(f"./database/cache/it_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
             st.rerun()
         elif approve_interview_button:
             it_data.loc[it_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Approved'
             st.session_state["it_data"] = it_data
             it_data.to_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}", index=False)
+            it_status.loc[it_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Approved'
+            st.session_state["it_status"] = it_status
+            it_status.to_csv(f"./database/cache/it_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
             st.rerun()

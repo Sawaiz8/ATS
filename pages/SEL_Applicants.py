@@ -28,6 +28,7 @@ def sel_applicants():
     # Read SEL data from CSV file
     csv_files = pd.DataFrame(st.session_state["current_session"])
     sel_data = st.session_state["sel_data"]
+    sel_status = st.session_state["sel_status"]
 
     applicant_dropdown = st.selectbox(
         "Search Individual **SEL** Applicants",
@@ -86,21 +87,20 @@ def sel_applicants():
             except ValueError as e:
                 st.error(f"Could not load PDF: {pdf_source}")
 
-        action_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
-        action_row.empty()
-        accept_button = action_row.button(label="Accept")
+        action_row = row([0.27, 0.4, 0.15, 0.2], vertical_align="center", gap="small")
+        approve_interview_button = action_row.button(label="Approve Interview")
+        schedule_interview_button = action_row.button(label="Interview Scheduled (For HR only)")
         reject_button = action_row.button(label="Reject")
-        action_row.empty()
-        interview_row = row([0.35, 0.15, 0.15, 0.35], vertical_align="center", gap="small")
-        interview_row.empty()
-        schedule_interview_button = interview_row.button(label="Schedule Interview")
-        approve_interview_button = interview_row.button(label="Approve Interview")
-        interview_row.empty()
+        accept_button = action_row.button(label="Accept")
+        
         if accept_button:
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
             st.toast('Applicant Accepted', icon="❗")
             st.session_state["sel_data"] = sel_data
             sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
+            sel_status.loc[sel_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
+            st.session_state["sel_status"] = sel_status
+            sel_status.to_csv(f"./database/cache/sel_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
             st.rerun()
 
         elif reject_button:
@@ -108,14 +108,23 @@ def sel_applicants():
             st.toast('Applicant Rejected', icon="❗")
             st.session_state["sel_data"] = sel_data
             sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
+            sel_status.loc[sel_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
+            st.session_state["sel_status"] = sel_status
+            sel_status.to_csv(f"./database/cache/sel_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
             st.rerun()
         elif schedule_interview_button:
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Scheduled'
             st.session_state["sel_data"] = sel_data
             sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
+            sel_status.loc[sel_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Scheduled'
+            st.session_state["sel_status"] = sel_status
+            sel_status.to_csv(f"./database/cache/sel_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
             st.rerun()
         elif approve_interview_button:
             sel_data.loc[sel_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Approved'
             st.session_state["sel_data"] = sel_data
             sel_data.to_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}", index=False)
+            sel_status.loc[sel_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Approved'
+            st.session_state["sel_status"] = sel_status
+            sel_status.to_csv(f"./database/cache/sel_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
             st.rerun()

@@ -10,8 +10,9 @@ def save_project(project_name, it_file, chess_file, sel_file):
     downloader = GoogleDriveDownloader()
     try:
         it_sheet = downloader.download_google_sheet(it_file, "temp_files/it_file.csv")
-        sel_sheet = downloader.download_google_sheet(sel_file, "temp_files/sel_file.csv")
         chess_sheet = downloader.download_google_sheet(chess_file, "temp_files/chess_file.csv")
+        sel_sheet = downloader.download_google_sheet(sel_file, "temp_files/sel_file.csv")
+
 
     except:
         st.error("Error downloading files")
@@ -106,6 +107,21 @@ def save_project(project_name, it_file, chess_file, sel_file):
     sessions.loc[len(sessions.index)] = [project_name, "IT", project_name, f"{project_name}/applicants_form_data/it_applicant_data.csv", it_file]
     sessions.loc[len(sessions.index)] = [project_name, "SEL", project_name, f"{project_name}/applicants_form_data/sel_applicant_data.csv", sel_file]
     sessions.loc[len(sessions.index)] = [project_name, "CHESS", project_name, f"{project_name}/applicants_form_data/chess_applicant_data.csv", chess_file]
+
+    # Create a folder called cache if it doesn't exist in the database folder
+    os.makedirs("./database/cache", exist_ok=True)
+
+    it_status = it[["name", "age", "phone_number"]].copy()
+    it_status["applicant_status"] = "Under Review"
+    it_status.to_csv(f"./database/cache/it_{project_name}_applicant_status.csv", index=False)
+
+    sel_status = sel[["name", "age", "phone_number"]].copy()
+    sel_status["applicant_status"] = "Under Review"
+    sel_status.to_csv(f"./database/cache/sel_{project_name}_applicant_status.csv", index=False)
+
+    chess_status = chess[["name", "age", "phone_number"]].copy()
+    chess_status["applicant_status"] = "Under Review"
+    chess_status.to_csv(f"./database/cache/chess_{project_name}_applicant_status.csv", index=False)
 
     sessions.to_csv("./database/sessions.csv", index=False)
     os.remove("temp_files/it_file.csv")

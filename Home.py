@@ -231,24 +231,29 @@ if st.session_state["authentication_status"]:
 
     if session_selector is not None and st.session_state["current_page"] == "Applicant":
         st.session_state["current_session"] = sessions[sessions.session_name == session_selector].reset_index()
+        st.session_state["current_session_name"] = session_selector
         downloader = GoogleDriveDownloader()
         # Read data of relevant session
         csv_files = pd.DataFrame(st.session_state["current_session"])
 
-
         if st.session_state["first_run"]:
             download_it_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'IT']['sheet_url'].values[0]}", f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
-            download_sel_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'CHESS']['sheet_url'].values[0]}", f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
-            download_chess_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'SEL']['sheet_url'].values[0]}", f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+            download_chess_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'CHESS']['sheet_url'].values[0]}", f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
+            download_sel_file = downloader.download_google_sheet(f"{csv_files[csv_files.category == 'SEL']['sheet_url'].values[0]}", f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
 
             it_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'IT'].sheet_link.values[0]}")
-            sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
-            chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+            chess_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}")
+            sel_data = pd.read_csv(f"./database/{csv_files[csv_files.category == 'SEL'].sheet_link.values[0]}")
+            
+            # Load applicant_status csvs from it, chess, and sel from the database folder.
+            it_status_path = f"./database/cache/it_{session_selector}_applicant_status.csv"
+            sel_status_path = f"./database/cache/sel_{session_selector}_applicant_status.csv"
+            chess_status_path = f"./database/cache/chess_{session_selector}_applicant_status.csv"
 
+            it_status = pd.read_csv(it_status_path)
+            sel_status = pd.read_csv(sel_status_path)
+            chess_status = pd.read_csv(chess_status_path)
 
-            it_data["applicant_status"] = "Under Review"
-            sel_data["applicant_status"] = "Under Review"
-            chess_data["applicant_status"] = "Under Review"
             it_data.rename(columns={
                 'Timestamp': 'timestamp',
                 'Email Address': 'email',
@@ -307,26 +312,90 @@ if st.session_state["authentication_status"]:
             }, inplace=True)
 
             for name, resume in it_data[["name", "cv"]].values:
-                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_it.pdf")
-                    it_data.loc[it_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_it.pdf"
+                file_path = f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_it.pdf"
+                if not os.path.exists(file_path):
+                    downloader.download_pdf(resume, file_path)
+                it_data.loc[it_data.name == name, "path_to_pdf"] = file_path
+
             for name, resume in sel_data[["name", "cv"]].values:
-                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_sel.pdf")
-                    sel_data.loc[sel_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_sel.pdf"
+                file_path = f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_sel.pdf"
+                if not os.path.exists(file_path):
+                    downloader.download_pdf(resume, file_path)
+                sel_data.loc[sel_data.name == name, "path_to_pdf"] = file_path
 
             for name, resume in chess_data[["name", "cv"]].values:
-                    downloader.download_pdf(resume, f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_chess.pdf")
-                    chess_data.loc[chess_data.name == name, "path_to_pdf"] = f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_chess.pdf"
+                file_path = f"./database/{session_selector}/applicants_resume/{name.replace(' ', '_')}_resume_chess.pdf"
+                if not os.path.exists(file_path):
+                    downloader.download_pdf(resume, file_path)
+                chess_data.loc[chess_data.name == name, "path_to_pdf"] = file_path
 
 
             it_data["city_address"] = ""
             sel_data["city_address"] = ""
             chess_data["city_address"] = ""
 
+
+            # Check and update it_status
+            new_rows = []
+            for _, row in it_data.iterrows():
+                if not ((it_status["name"] == row["name"]) & 
+                        (it_status["age"] == row["age"]) & 
+                        (it_status["phone_number"] == row["phone_number"])).any():
+                    new_row = {
+                        "name": row["name"],
+                        "age": row["age"],
+                        "phone_number": row["phone_number"],
+                        "applicant_status": "Under Review"
+                    }
+                    new_rows.append(new_row)
+            it_status = pd.concat([it_status, pd.DataFrame(new_rows)], ignore_index=True)
+
+            # Check and update sel_status
+            new_rows = []
+            for _, row in sel_data.iterrows():
+                if not ((sel_status["name"] == row["name"]) & 
+                        (sel_status["age"] == row["age"]) & 
+                        (sel_status["phone_number"] == row["phone_number"])).any():
+                    new_row = {
+                        "name": row["name"],
+                        "age": row["age"],
+                        "phone_number": row["phone_number"],
+                        "applicant_status": "Under Review"
+                    }
+                    new_rows.append(new_row)
+            sel_status = pd.concat([sel_status, pd.DataFrame(new_rows)], ignore_index=True)
+
+            # Check and update chess_status
+            new_rows = []
+            for _, row in chess_data.iterrows():
+                if not ((chess_status["name"] == row["name"]) & 
+                        (chess_status["age"] == row["age"]) & 
+                        (chess_status["phone_number"] == row["phone_number"])).any():
+                    new_row = {
+                        "name": row["name"],
+                        "age": row["age"],
+                        "phone_number": row["phone_number"],
+                        "applicant_status": "Under Review"
+                    }
+                    new_rows.append(new_row)
+            chess_status = pd.concat([chess_status, pd.DataFrame(new_rows)], ignore_index=True)
+
+            # Save the updated status csvs
+            it_status.to_csv(it_status_path, index=False)
+            sel_status.to_csv(sel_status_path, index=False)
+            chess_status.to_csv(chess_status_path, index=False)         
+
+            # Create a new column in the it_data, sel_data, and chess_data called applicant_status and set it to the applicant_status in the applicant_status csv
+            it_data = it_data.merge(it_status[["name", "applicant_status"]], on="name", how="left")
+            sel_data = sel_data.merge(sel_status[["name", "applicant_status"]], on="name", how="left")
+            chess_data = chess_data.merge(chess_status[["name", "applicant_status"]], on="name", how="left")            
+
             it_data.to_csv(f"./database/{session_selector}/applicants_form_data/it_applicant_data.csv")
             chess_data.to_csv(f"./database/{session_selector}/applicants_form_data/chess_applicant_data.csv")
             sel_data.to_csv(f"./database/{session_selector}/applicants_form_data/sel_applicant_data.csv")
 
             st.session_state["it_data"], st.session_state["sel_data"], st.session_state["chess_data"] = it_data, sel_data, chess_data
+            st.session_state["it_status"], st.session_state["sel_status"], st.session_state["chess_status"] = it_status, sel_status, chess_status
             st.session_state["first_run"] = False
         st.sidebar.divider()
 
