@@ -487,5 +487,6 @@ if st.session_state["authentication_status"]:
             view_approved()
         case _:
             pass
+
 else:
     auth_page()
