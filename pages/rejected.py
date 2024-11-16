@@ -8,18 +8,18 @@ def view_rejected():
     chess = st.session_state["chess_data"]
 
     tab1, tab2, tab3 = st.tabs(["IT", "SEL", "CHESS"])
-    it["email_status"] = "Unsent"
-    chess["email_status"] = "Unsent"
-    sel["email_status"] = "Unsent"
+    # it["email_status"] = "Unsent"
+    # chess["email_status"] = "Unsent"
+    # sel["email_status"] = "Unsent"
     with tab1:
         st.write("Rejected IT Applications: ")
         st.dataframe(it[it.applicant_status == "Rejected"][["name", "email", "gender", "phone_number"]])
 
     with tab2:
-        st.write("Rejected CHESS Applications: ")
-        st.dataframe(chess[chess.applicant_status == "Rejected"][["name", "email", "gender", "phone_number"]])
-
-    with tab3:
         st.write("Rejected SEL Applications: ")
         st.dataframe(sel[sel.applicant_status == "Rejected"][["name", "email", "gender", "phone_number"]])
+    
+    with tab3:
+        st.write("Rejected CHESS Applications: ")
+        st.dataframe(chess[chess.applicant_status == "Rejected"][["name", "email", "gender", "phone_number"]])
 
