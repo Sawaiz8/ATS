@@ -2,31 +2,35 @@ import pandas as pd
 import streamlit as st
 from google_connector.google_sheet_download import GoogleDriveDownloader
 from time import sleep
+import os
 
 
 def update_data(project_name, chess, it, sel):
     downloader = GoogleDriveDownloader()
     sessions = pd.read_csv("./database/sessions.csv")
     if len(it) != 0:
-        downloaded_file = downloader.download_google_sheet(it, "temp_file.csv")
+        downloaded_file = downloader.download_google_sheet(it, "./temp_files/temp_file.csv")
         conditional = (sessions.session_name == project_name) & (sessions.category == "IT")
         sessions.loc[conditional, "sheet_url"] = it
-        it_df = pd.read_csv("temp_file.csv")
+        it_df = pd.read_csv("./temp_files/temp_file.csv")
         it_df.to_csv(f"./database/{project_name}/applicants_form_data/it_applicant_data.csv", index=False)
+        os.remove("./temp_files/temp_file.csv")
         st.success("Updated IT file")
     if len(chess) != 0:
-        downloaded_file = downloader.download_google_sheet(chess, "temp_file.csv")
+        downloaded_file = downloader.download_google_sheet(chess, "./temp_files/temp_file.csv")
         conditional = (sessions.session_name == project_name) & (sessions.category == "CHESS")
         sessions.loc[conditional, "sheet_url"] = chess
-        chess_df = pd.read_csv("temp_file.csv")
+        chess_df = pd.read_csv("./temp_files/temp_file.csv")
         chess_df.to_csv(f"./database/{project_name}/applicants_form_data/chess_applicant_data.csv",index=False)
+        os.remove("./temp_files/temp_file.csv")
         st.success("Updated CHESS file")
     if len(sel) != 0:
-        downloaded_file = downloader.download_google_sheet(sel, "temp_file.csv")
+        downloaded_file = downloader.download_google_sheet(sel, "./temp_files/temp_file.csv")
         conditional = (sessions.session_name == project_name) & (sessions.category == "SEL")
         sessions.loc[conditional, "sheet_url"] = sel
-        sel_df = pd.read_csv("temp_file.csv")
+        sel_df = pd.read_csv("./temp_files/temp_file.csv")
         sel_df.to_csv(f"./database/{project_name}/applicants_form_data/sel_applicant_data.csv", index=False)
+        os.remove("./temp_files/temp_file.csv")
         st.success("Updated SEL file")
 
 

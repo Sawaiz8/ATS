@@ -192,6 +192,21 @@ def hr_page():
         try:
             rmtree(f"./database/{selected_session_directory}")
             sessions = sessions[sessions.session_name != delete_selector]
+            # Remove IT cache files
+            it_cache_files = glob.glob(f"./database/cache/it_{delete_selector}_*")
+            for file in it_cache_files:
+                os.remove(file)
+
+            # Remove Chess cache files
+            chess_cache_files = glob.glob(f"./database/cache/chess_{delete_selector}_*")
+            for file in chess_cache_files:
+                os.remove(file)
+
+            # Remove SEL cache files
+            sel_cache_files = glob.glob(f"./database/cache/sel_{delete_selector}_*")
+            for file in sel_cache_files:
+                os.remove(file)
+                
             sessions.to_csv("./database/sessions.csv", index=False)
             st.success("Project Deleted Successfully!")
             sleep(1.0)
