@@ -89,9 +89,9 @@ def it_home():
         institute_counts = it_with_ngo_experience['institute'].value_counts().reset_index()
         institute_counts.columns = ['institute', 'count']
         st.plotly_chart(
-            px.bar(institute_counts,
-                x="institute",
-                y="count",
+            px.pie(institute_counts,
+                names="institute",
+                values="count",
                 title="Number of People with NGO Experience by Institute",
                 labels = {
                     "institute": "Institute/Organization Name",

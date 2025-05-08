@@ -54,3 +54,5 @@ def update_page():
                 st.success("Successfully Updated Data")
                 sleep(1.0)
                 st.rerun()
+
+        
