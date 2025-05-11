@@ -32,8 +32,6 @@ def update_data(project_name, chess, it, sel):
         sel_df.to_csv(f"./database/{project_name}/applicants_form_data/sel_applicant_data.csv", index=False)
         os.remove("./temp_files/temp_file.csv")
         st.success("Updated SEL file")
-
-
     sessions.to_csv("./database/sessions.csv", index=False)
 
 def update_page():

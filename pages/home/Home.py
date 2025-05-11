@@ -1,31 +1,29 @@
-import os
-from dotenv import load_dotenv
-import numpy as np
 import pandas as pd
 import streamlit as st
-import plotly.graph_objects as go
 import plotly.express as px
+import plotly.graph_objects as go
+import numpy as np
 
-load_dotenv()
+def intro_page():
+    st.title("Welcome to Daadras ATS")
+    st.markdown("Choose a session to analyze and manage applications.")
 
-def sel_home():
-    # Read SEL data from CSV file
-    sel_data = st.session_state["sel_data"]
-
+def home_page():
+    app_data = [st.session_state["it_data"], st.session_state["sel_data"], st.session_state["chess_data"]]
+    app_data = pd.concat(app_data)
     tab1, tab2, tab3 = st.tabs(["🔎 Overview", "📈 Charts", "📍 Map"])
     with tab1:
         # Basic Queries for IT Metrics
-        average_age = round(sel_data['age'].mean(), 1)
-        males = len(sel_data[sel_data.gender == "Male"])
-        females = len(sel_data[sel_data.gender == "Female"])
-        total_applicants = len(sel_data)
-        university_students = len(sel_data[sel_data.occupation == "Student"])
-        not_working = len(sel_data[sel_data.occupation == "not working"])
-        doing_jobs = len(sel_data[sel_data.occupation == "Employed"])
-        ngo_work = len(sel_data[sel_data.ngo_work == "yes"])
+        average_age = round(app_data['age'].mean(), 1)
+        males = len(app_data[app_data.gender == "Male"])
+        females = len(app_data[app_data.gender == "Female"])
+        total_applicants = len(app_data)
+        university_students = len(app_data[app_data.occupation == "Student"])
+        not_working = len(app_data[app_data.occupation == "not working"])
+        doing_jobs = len(app_data[app_data.occupation == "Employed"])
+        ngo_work = len(app_data[app_data.ngo_work == "yes"])
 
-
-        st.header("Overview of SEL Applications")
+        st.header("Overview of All Applications")
 
         # Display IT metrics using st.metric
         age_metric, male_metric, female_metric, total_metric = st.columns(4)
@@ -42,7 +40,7 @@ def sel_home():
     with tab2:
         graph_1, graph_2 = st.columns(spec=2, gap="large")
         # Graph Applicants by institute using st.bar_chart
-        applicants_by_institute = sel_data["institute"].value_counts().reset_index()
+        applicants_by_institute = app_data["institute"].value_counts().reset_index()
         applicants_by_institute.columns = ['institute', 'count']
         graph_1.plotly_chart(
             px.bar(
@@ -62,7 +60,7 @@ def sel_home():
                 )
             )
         )
-        transport_counts = sel_data["transport"].value_counts().reset_index()
+        transport_counts = app_data["transport"].value_counts().reset_index()
         transport_counts.columns = ['transport', 'count']
         graph_2.plotly_chart(
             px.bar(
@@ -85,7 +83,7 @@ def sel_home():
 
         # Graph Applicants with NGO experience using st.bar_chart
         # Filter the data for those who have NGO experience
-        it_with_ngo_experience = sel_data[sel_data['ngo_work'] == 'Yes']
+        it_with_ngo_experience = app_data[app_data['ngo_work'] == 'Yes']
         # Group by Institute/Organization Name and count the number of people with NGO experience
         institute_counts = it_with_ngo_experience['institute'].value_counts().reset_index()
         institute_counts.columns = ['institute', 'count']
@@ -109,17 +107,17 @@ def sel_home():
         )
 
     with tab3:
-        tab3.subheader("Where are the SEL applicants coming from?")
+        tab3.subheader("Where are the applicants coming from?")
         def get_coordinates(address):
             random_coords = (np.random.randn(2, 1) / [10, 10]) + [31.5204, 74.3587]
             return random_coords[0]
 
-        map_df = sel_data.filter(items=["name", "transport", "city_address"])
+        map_df = app_data.filter(items=["name", "transport", "city_address"])
         map_df["lat"] = map_df["city_address"].apply(lambda x: get_coordinates(x)[0])
         map_df["lon"] = map_df["city_address"].apply(lambda x: get_coordinates(x)[1])
 
-        # Read mapbox access token from file: mapbox_token
-        MAPBOX_ACCESS_TOKEN = os.getenv('MAPBOX_ACCESS_TOKEN')
+        # Read mapbox access token from env
+        MAPBOX_ACCESS_TOKEN = st.secrets["MAPBOX_ACCESS_TOKEN"]
 
         map_fig = go.Figure(go.Scattermapbox(
             lon = map_df["lon"], lat = map_df["lat"],
@@ -132,17 +130,17 @@ def sel_home():
                 opacity=0.8,
             ),
             hoverinfo='text'
-        ))
+            ))
 
         map_fig.update_layout(
-            mapbox=dict(
-                accesstoken=MAPBOX_ACCESS_TOKEN,
-                center=dict(
-                    lat=31.5204,
-                    lon=74.3587
-                ),
-                zoom = 10,
+        mapbox=dict(
+            accesstoken=MAPBOX_ACCESS_TOKEN,
+            center=dict(
+                lat=31.5204,
+                lon=74.3587
             ),
-            margin={"r": 0, "t": 0, "l": 0, "b": 0}
+            zoom = 10,
+        ),
+        margin={"r": 0, "t": 0, "l": 0, "b": 0}
         )
         st.plotly_chart(map_fig)
