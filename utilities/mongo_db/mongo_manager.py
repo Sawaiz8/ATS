@@ -125,6 +125,25 @@ class MongoDBManager:
         
         return result.modified_count > 0
 
+    @db_connection
+    async def update_sheet_url(self, session_name: str, category: str, sheet_url: str) -> bool:
+        """
+        Update the sheet URL for a specific session and category.
+        
+        Args:
+            session_name: Name of the session
+            category: Category to update (it, sel, or chess)
+            sheet_url: New sheet URL to set
+            
+        Returns:
+            bool: True if update was successful, False if session not found
+        """
+        update_field = f"categories.{category}.sheet_url"
+        result = self.sessions_data_collection.update_one(
+            {"session_name": session_name},
+            {"$set": {update_field: sheet_url}}
+        )        
+        return result.modified_count > 0
 
     @db_connection
     async def delete_session_data(self, session_name: str) -> None:
@@ -132,6 +151,20 @@ class MongoDBManager:
         self.sessions_data_collection.delete_one({"session_name": session_name})
         # Delete all students associated with the session
         self.volunteer_data_collection.delete_many({"session_name": session_name})
+
+    @db_connection
+    async def delete_volunteers_by_category(self, session_name: str, category: str) -> None:
+        """
+        Delete all volunteer data for a specific session and category.
+        
+        Args:
+            session_name: Name of the session
+            category: Category of volunteers to delete (it, sel, or chess)
+        """
+        self.volunteer_data_collection.delete_many({
+            "session_name": session_name,
+            "category": category
+        })
 
     @db_connection
     async def update_student_fields(self, session_name: str, section_name: str, student_id: int, update_fields: Dict) -> None:
