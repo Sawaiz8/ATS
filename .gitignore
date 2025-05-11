@@ -8,3 +8,4 @@ google_drive_downloader.log
 *.pdf
 *.csv
 .env
+__pycache__/

@@ -1,20 +1,13 @@
 from dotenv import load_dotenv
 import streamlit as st
 import streamlit_authenticator as stauth
-import pandas as pd
 
 from pages.analytics_dashboard.analytics_home import analytics_home
-
-
 from pages.analytics_dashboard.individual_applicants import applicants_page
-
 from pages.interview_statuses_pages.interview_status import view_interview_status
-
 from pages.session_management.hr import hr_page
 from pages.session_management.update_data import update_page
-
 from pages.home.Home import intro_page, home_page
-
 from controllers.home import download_and_update_latest_data
 from utilities.mongo_db.streamlit_mongo_wrapper import get_all_session_names, get_session_data
 

@@ -1,6 +1,4 @@
-import pandas as pd
 import streamlit as st
-
 
 def view_interview_status(status: str):
     it = st.session_state["it_data"]
