@@ -1,0 +1,18 @@
+ services:
+  
+  ats:
+    build: .
+    command: sh ./docker-entrypoint.sh
+    container_name: ats
+    ports:
+      - $STREAMLIT_PORT:$STREAMLIT_PORT
+    volumes:
+      - ./:/app
+    environment:
+      MONGO_INITDB_DATABASE: $MONGO_INITDB_DATABASE
+      MONGO_DB_ATLAS_URI: $MONGO_DB_ATLAS_URI
+      STREAMLIT_SERVER_HEADLESS: $STREAMLIT_SERVER_HEADLESS
+      STREAMLIT_SERVER_PORT: $STREAMLIT_SERVER_PORT
+      STREAMLIT_SERVER_ENABLE_CORS: $STREAMLIT_SERVER_ENABLE_CORS
+      STREAMLIT_PORT: $STREAMLIT_PORT
+    restart: always

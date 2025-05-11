@@ -1,0 +1,12 @@
+{
+    "session_name": null,
+    "categories":{ 
+        "it" : {"sheet_url": null, "dataframe_path": null},
+        "chess" : {"sheet_url": null, "dataframe_path": null},
+        "sel" : {"sheet_url": null, "dataframe_path": null}
+    },
+    "school_name": null,
+    "school_location": null,
+    "start_date": null,
+    "end_date": null
+}

@@ -3,7 +3,7 @@ from typing import List, Dict
 import os
 
 class MongoDBManager:
-    def __init__(self, uri=os.getenv("MONGO_URL"), db_name=os.getenv("MONGO_INITDB_DATABASE")):
+    def __init__(self, uri=os.getenv("MONGO_DB_ATLAS_URI"), db_name=os.getenv("MONGO_INITDB_DATABASE")):
         self.uri = uri
         self.db_name = db_name
         self.client = None
@@ -40,22 +40,6 @@ class MongoDBManager:
             return result
         return wrapper
 
-    @db_connection
-    async def upsert_student_data(self, student_data) -> None:
-        # Get the current max student_id and increment by 1
-        max_student = self.students_data_collection.find_one(
-            sort=[("student_id", -1)]
-        )
-        next_id = 1 if max_student is None else max_student["student_id"] + 1
-        
-        # Set the auto-generated ID
-        student_data["student_id"] = next_id
-        
-        self.students_data_collection.update_one(
-            {"student_id": student_data["student_id"]},
-            {"$set": student_data},
-            upsert=True
-        )
 
     @db_connection
     async def upsert_volunteer_data(self, volunteer_data: Dict) -> None:
@@ -97,18 +81,49 @@ class MongoDBManager:
         return session_names if session_names else []
     
     @db_connection
-    async def get_section_names(self, session_name: str) -> List[str]:
-        session = self.sessions_data_collection.find_one({"session_name": session_name})
-        sections = [section["section_name"] for section in session.get("sections", [])] if session else []
-        return sections
+    async def get_session_data(self, session_name: str) -> Dict:
+        session_data = self.sessions_data_collection.find_one({"session_name": session_name})
+        return session_data if session_data else {}
+    
+    # @db_connection
+    # async def get_volunteer_data(self, session_name: str, category: str) -> Dict:
+    #     volunteer_data = self.volunteer_data_collection.find_one({"session_name": session_name, "category": category.upper()})
+    #     return volunteer_data if volunteer_data else {}
     
     @db_connection
-    async def get_students_by_session_and_section(self, session_name: str, section_name: str) -> List[Dict]:
-        students = list(self.students_data_collection.find({
-            "session_name": session_name,
-            "section_name": section_name
-        }))
-        return students if students else []
+    async def get_all_volunteers_data(self, session_name: str, category: str) -> List[Dict]:
+        # Find all volunteers matching the session and category
+        cursor = self.volunteer_data_collection.find(
+            {"session_name": session_name, "category": category}
+        )
+
+        # Convert cursor to list of dictionaries
+        volunteer_data = list(cursor)
+        return volunteer_data if volunteer_data else []
+    
+    @db_connection
+    async def update_volunteer_status(self, name: str, email: str, new_status: str) -> bool:
+        """
+        Update the applicant_status for a volunteer matching the given name, phone and email.
+        
+        Args:
+            name: Name of the volunteer
+            phone_number: Phone number of the volunteer 
+            email: Email of the volunteer
+            new_status: New status to set for the volunteer
+            
+        Returns:
+            bool: True if update was successful, False if volunteer not found
+        """
+        result = self.volunteer_data_collection.update_one(
+            {
+                "name": name,
+                "email": email
+            },
+            {"$set": {"applicant_status": new_status}}
+        )
+        
+        return result.modified_count > 0
 
 
     @db_connection
@@ -116,7 +131,7 @@ class MongoDBManager:
         # Delete the session document
         self.sessions_data_collection.delete_one({"session_name": session_name})
         # Delete all students associated with the session
-        self.students_data_collection.delete_many({"session_name": session_name})
+        self.volunteer_data_collection.delete_many({"session_name": session_name})
 
     @db_connection
     async def update_student_fields(self, session_name: str, section_name: str, student_id: int, update_fields: Dict) -> None:

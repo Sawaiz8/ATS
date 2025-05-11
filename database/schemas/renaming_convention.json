@@ -1,0 +1,18 @@
+{
+    "Timestamp": "timestamp",
+    "Email Address": "email",
+    "Name": "name",
+    "Age": "age",
+    "Gender": "gender",
+    "Phone Number": "phone_number",
+    "Transport": "transport",
+    "Have you worked for any NGO before?": "ngo_work",
+    "City": "city",
+    "In which area do you currently reside in your city?": "city_address",
+    "Your Current Occupation": "occupation",
+    "Institute where you currently study or studied": "institute",
+    "CV": "CV",
+    "Your Instagram Account:": "insta_id",
+    "Your LinkedIn Profile:": "linkedin_id",
+    "Do you have a Discord ID?": "has_discord"
+}

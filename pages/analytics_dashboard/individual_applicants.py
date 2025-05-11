@@ -3,7 +3,8 @@ import pandas as pd
 import streamlit as st
 from streamlit_extras.row import row
 from streamlit_pdf_reader import pdf_reader
-
+from main.database import mongo_store
+import asyncio
 renamed_columns = [
     'timestamp',           # from 'Timestamp'
     'email',              # from 'Email Address'
@@ -23,19 +24,16 @@ renamed_columns = [
     'has_discord'         # from 'Do you have a Discord ID?'
 ]
 
-def chess_applicants():
-    # Read Chess data from CSV file
-    csv_files = pd.DataFrame(st.session_state["current_session"])
-    chess_data = st.session_state["chess_data"]
-    chess_status = st.session_state["chess_status"]
-
+def applicants_page(category):
+    current_session_data = st.session_state["current_session"]
+    df_applicant = st.session_state[f"{category}_data"]
     applicant_dropdown = st.selectbox(
-        "Search Individual **CHESS** Applicants",
-        chess_data["name"],
+        f"Search Individual **{category.upper()}** Applicants",
+        df_applicant["name"],
         index=None,
     )
     if applicant_dropdown is not None:
-        current_applicant = chess_data[chess_data.name == applicant_dropdown]
+        current_applicant = df_applicant[df_applicant.name == applicant_dropdown]
         st.metric("Application Status", current_applicant["applicant_status"].values[0])
         col_1, col_2, col_3= st.columns(3)
         col_1.metric("Name", applicant_dropdown)
@@ -63,8 +61,8 @@ def chess_applicants():
             st.markdown(f"***email***: {current_applicant['email'].values[0]}")
             st.markdown(f"***Has Discord?***: {current_applicant['has_discord'].values[0]}")
 
-                # Get columns not in renamed_columns list
-        extra_columns = [col for col in chess_data.columns if col not in renamed_columns + ['applicant_status', 'path_to_pdf']]
+        # Get columns not in renamed_columns list
+        extra_columns = [col for col in df_applicant.columns if col not in renamed_columns + ['applicant_status', 'path_to_pdf']]
         
         # Create rows of 3 columns each
         for i in range(0, len(extra_columns), 3):
@@ -92,38 +90,35 @@ def chess_applicants():
         reject_button = action_row.button(label="Reject")
         accept_button = action_row.button(label="Accept")
 
+        name = str(current_applicant.name.values[0])
+        email = str(current_applicant.email.values[0])
         if accept_button:
-            chess_data.loc[chess_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
+            df_applicant.loc[df_applicant['name'] == name, ["applicant_status"]] = 'Accepted'
             st.toast('Applicant Accepted', icon="❗")
-            st.session_state["chess_data"] = chess_data
-            chess_data.to_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}", index=False)
-            chess_status.loc[chess_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Accepted'
-            st.session_state["chess_status"] = chess_status
-            chess_status.to_csv(f"./database/cache/chess_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
+            st.session_state[f"{category}_data"] = df_applicant
+            df_applicant.to_csv(current_session_data["categories"][category]['dataframe_path'], index=False)
+            asyncio.run(mongo_store.update_volunteer_status(name, email, 'Accepted'))
+            st.write(df_applicant)
             st.rerun()
-
         elif reject_button:
-            chess_data.loc[chess_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
+            df_applicant.loc[df_applicant['name'] == name, ["applicant_status"]] = 'Rejected'
             st.toast('Applicant Rejected', icon="❗")
-            st.session_state["chess_data"] = chess_data
-            chess_data.to_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}", index=False)
-            chess_status.loc[chess_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Rejected'
-            st.session_state["chess_status"] = chess_status
-            chess_status.to_csv(f"./database/cache/chess_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
+            st.session_state[f"{category}_data"] = df_applicant
+            df_applicant.to_csv(current_session_data["categories"][category]['dataframe_path'], index=False)
+            asyncio.run(mongo_store.update_volunteer_status(name, email, 'Rejected'))
+            st.write(df_applicant)
             st.rerun()
         elif schedule_interview_button:
-            chess_data.loc[chess_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Scheduled'
-            st.session_state["chess_data"] = chess_data
-            chess_data.to_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}", index=False)
-            chess_status.loc[chess_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Scheduled'
-            st.session_state["chess_status"] = chess_status
-            chess_status.to_csv(f"./database/cache/chess_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
+            df_applicant.loc[df_applicant['name'] == name, ["applicant_status"]] = 'Interview_Scheduled'
+            st.session_state[f"{category}_data"] = df_applicant
+            df_applicant.to_csv(current_session_data["categories"][category]['dataframe_path'], index=False)
+            asyncio.run(mongo_store.update_volunteer_status(name, email, 'Interview_Scheduled'))
+            st.write(df_applicant)
             st.rerun()
         elif approve_interview_button:
-            chess_data.loc[chess_data['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Approved'
-            st.session_state["chess_data"] = chess_data
-            chess_data.to_csv(f"./database/{csv_files[csv_files.category == 'CHESS'].sheet_link.values[0]}", index=False)
-            chess_status.loc[chess_status['name'] == current_applicant.name.values[0], ["applicant_status"]] = 'Interview_Approved'
-            st.session_state["chess_status"] = chess_status
-            chess_status.to_csv(f"./database/cache/chess_{st.session_state['current_session_name']}_applicant_status.csv", index=False)
+            df_applicant.loc[df_applicant['name'] == name, ["applicant_status"]] = 'Interview_Approved'
+            st.session_state[f"{category}_data"] = df_applicant
+            df_applicant.to_csv(current_session_data["categories"][category]['dataframe_path'], index=False)
+            asyncio.run(mongo_store.update_volunteer_status(name, email, 'Interview_Approved'))
+            st.write(df_applicant)
             st.rerun()
