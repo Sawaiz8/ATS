@@ -7,3 +7,4 @@ google_connector/__pycache__
 google_drive_downloader.log
 *.pdf
 *.csv
+.env
