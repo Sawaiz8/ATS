@@ -25,7 +25,7 @@ def hr_page():
     
     # Create new project
     st.header("Create a New Project")
-    new_project_name = st.text_input("Project Name")
+    new_session_name = st.text_input("Project Name")
 
     st.write("### Link CSV Files")
 
@@ -38,8 +38,8 @@ def hr_page():
     st.subheader("SEL")
     sel_file = st.text_input("Link to SEL Sheet")
     if st.button("Save Project"):
-        if new_project_name:
-            save_project(new_project_name, it_file, chess_file, sel_file)
+        if new_session_name:
+            save_project(new_session_name, it_file, chess_file, sel_file)
             st.success("Project created successfully")
             sleep(1.0)
             st.cache_data.clear()

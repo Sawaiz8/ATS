@@ -7,7 +7,7 @@ from utilities.utils import clean_applicants_dataframe, download_resumes
 from google_connector.google_sheet_download import GoogleDriveDownloader
 import streamlit as st
 import pandas as pd
-
+from utilities.mongo_db.streamlit_mongo_wrapper import upsert_volunteers_data
 
 def update_data(session_name, chess_sheet_url, it_sheet_url, sel_sheet_url):
     downloader = GoogleDriveDownloader()
@@ -44,4 +44,6 @@ def update_data(session_name, chess_sheet_url, it_sheet_url, sel_sheet_url):
                     latest_data["applicant_status"] = "Under Review"
                     latest_data.to_csv(f"./database/{session_name}/applicants_form_data/{category}_applicant_data.csv", index=False)
                     download_resumes(latest_data, session_name, category)
+                    upsert_volunteers_data(df=latest_data, session_name=session_name, category=category)
+
                     st.success(f"Updated {category.upper()} file")

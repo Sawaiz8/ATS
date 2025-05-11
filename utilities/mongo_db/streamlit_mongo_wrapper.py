@@ -13,7 +13,7 @@ def get_session_data(session_name: str):
     return asyncio.run(mongo_store.get_session_data(session_name))
 
 
-def upsert_volunteers_data(df, project_name, category):
+def upsert_volunteers_data(df, session_name, category):
     for index, row in df.iterrows():
         # Get all columns that weren't renamed
         department_specific_columns = {col: row[col] for col in row.index if col not in [
@@ -23,7 +23,7 @@ def upsert_volunteers_data(df, project_name, category):
         ]}
         
         applicant_data = {
-            "session_name": project_name,
+            "session_name": session_name,
             "category": category,
             "name": row["name"],
             "age": row["age"], 
