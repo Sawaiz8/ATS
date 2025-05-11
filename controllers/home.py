@@ -53,6 +53,9 @@ def download_and_update_latest_data():
     session_catagory_data = st.session_state["current_session"]["categories"]
     session_selector = st.session_state["current_session"]["session_name"]
 
+    os.makedirs(f"./database/{session_selector}", exist_ok=True)
+    os.makedirs(f"./database/{session_selector}/applicants_form_data", exist_ok=True)
+    os.makedirs(f"./database/{session_selector}/applicants_resume", exist_ok=True)
     with tempfile.TemporaryDirectory() as temp_dir:
         results = {}
         for category in session_catagory_data:
