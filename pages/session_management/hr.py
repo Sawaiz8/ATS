@@ -61,7 +61,9 @@ def hr_page():
 
     if st.button("Save Project"):
         if new_session_name and categories_dict:
-            save_project(new_session_name, categories_dict)
+            # Show loading spinner
+            with st.spinner("Saving project..."):
+                save_project(new_session_name, categories_dict)
             st.success("Project created successfully")
             sleep(1.0)
             st.cache_data.clear()
