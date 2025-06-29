@@ -9,8 +9,8 @@ import plotly.express as px
 load_dotenv()
 
 def analytics_home(category):
-    # Read Chess data from CSV file
-    df_applicant = st.session_state[f"{category}_data"]
+    # Read data from CSV file
+    df_applicant = st.session_state["projects_data"][category]
 
     tab1, tab2, tab3 = st.tabs(["🔎 Overview", "📈 Charts", "📍 Map"])
     with tab1:

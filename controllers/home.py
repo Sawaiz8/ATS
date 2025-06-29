@@ -9,9 +9,9 @@ import streamlit as st
 def get_and_update_latest_data(session_selector, category_name, url, dataframe_path, temp_dir):
     downloader = GoogleDriveDownloader()
 
-    downloader.download_google_sheet(url, f"{temp_dir}/it_file.csv")
+    downloader.download_google_sheet(url, f"{temp_dir}/{category_name}_file.csv")
 
-    latest_data = pd.read_csv(f"{temp_dir}/it_file.csv", dtype={'Phone Number': str})
+    latest_data = pd.read_csv(f"{temp_dir}/{category_name}_file.csv", dtype={'Phone Number': str})
     current_data = get_volunteer_data_as_csv(session_selector, category_name)
 
     # Strip whitespace from all cells in latest_data
@@ -57,10 +57,10 @@ def download_and_update_latest_data():
     os.makedirs(f"./database/{session_selector}/applicants_form_data", exist_ok=True)
     os.makedirs(f"./database/{session_selector}/applicants_resume", exist_ok=True)
     with tempfile.TemporaryDirectory() as temp_dir:
-        results = {}
+        projects_data = {}
         for category in session_catagory_data:
             category_name = category
-            results[category_name] = get_and_update_latest_data(
+            projects_data[category_name] = get_and_update_latest_data(
                 session_selector,
                 category_name,
                 session_catagory_data[category_name]["sheet_url"],
@@ -68,4 +68,28 @@ def download_and_update_latest_data():
                 temp_dir
             )
         
-    return results["it"], results["sel"], results["chess"]
+    return projects_data
+
+def get_existing_data(session_name):
+    """
+    Loads the projects_data for a given session_name from existing CSV files.
+
+    Args:
+        session_name (str): The name of the session/project.
+
+    Returns:
+        dict: A dictionary where keys are category names and values are pandas DataFrames.
+    """
+
+    projects_data = {}
+    session_path = f"./database/{session_name}/applicants_form_data"
+    if not os.path.exists(session_path):
+        return projects_data
+
+    for file in os.listdir(session_path):
+        if file.endswith(".csv"):
+            category_name = file.replace(".csv", "")
+            file_path = os.path.join(session_path, file)
+            df = pd.read_csv(file_path)
+            projects_data[category_name] = df
+    return projects_data

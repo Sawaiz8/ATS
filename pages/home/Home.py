@@ -9,8 +9,10 @@ def intro_page():
     st.markdown("Choose a session to analyze and manage applications.")
 
 def home_page():
-    app_data = [st.session_state["it_data"], st.session_state["sel_data"], st.session_state["chess_data"]]
-    app_data = pd.concat(app_data)
+
+    # Dynamically combine data from all categories
+    app_data = pd.concat([data for category, data in st.session_state["projects_data"].items()])
+    
     tab1, tab2, tab3 = st.tabs(["🔎 Overview", "📈 Charts", "📍 Map"])
     with tab1:
         # Basic Queries for IT Metrics
