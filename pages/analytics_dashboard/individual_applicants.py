@@ -26,7 +26,7 @@ renamed_columns = [
 
 def applicants_page(category):
     current_session_data = st.session_state["current_session"]
-    df_applicant = st.session_state[f"{category}_data"]
+    df_applicant = st.session_state["projects_data"][category]
     applicant_dropdown = st.selectbox(
         f"Search Individual **{category.upper()}** Applicants",
         df_applicant["name"],

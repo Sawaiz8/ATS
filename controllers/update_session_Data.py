@@ -9,22 +9,15 @@ import streamlit as st
 import pandas as pd
 from utilities.mongo_db.streamlit_mongo_wrapper import upsert_volunteers_data
 
-def update_data(session_name, chess_sheet_url, it_sheet_url, sel_sheet_url):
+def update_data(session_name, category_urls):
     downloader = GoogleDriveDownloader()
     os.makedirs(f"./database/{session_name}", exist_ok=True)
     os.makedirs(f"./database/{session_name}/applicants_form_data", exist_ok=True)
     os.makedirs(f"./database/{session_name}/applicants_resume", exist_ok=True)
 
     with tempfile.TemporaryDirectory() as temp_dir:
-        # Define the categories and their URLs
-        categories = {
-            "it": it_sheet_url,
-            "chess": chess_sheet_url, 
-            "sel": sel_sheet_url
-        }
-
         # Process each category
-        for category, sheet_url in categories.items():
+        for category, sheet_url in category_urls.items():
             if len(sheet_url) != 0:
                 downloaded_file = downloader.download_google_sheet(sheet_url, f"{temp_dir}/{category}_file.csv")
                 if downloaded_file:

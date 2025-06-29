@@ -1,20 +1,15 @@
 import streamlit as st
 
 def view_interview_status(status: str):
-    it = st.session_state["it_data"]
-    sel = st.session_state["sel_data"]
-    chess = st.session_state["chess_data"]
-
-    tab1, tab2, tab3 = st.tabs(["IT", "SEL", "CHESS"])
-    with tab1:
-        st.write(f"{status} IT Applications: ")
-        st.dataframe(it[it["applicant_status"] == status][["name", "email", "gender", "phone_number"]])
-
-    with tab2:
-        st.write(f"{status} SEL Applications: ")
-        st.dataframe(sel[sel["applicant_status"] == status][["name", "email", "gender", "phone_number"]])
-
-    with tab3:
-        st.write(f"{status} CHESS Applications: ")
-        st.dataframe(chess[chess["applicant_status"] == status][["name", "email", "gender", "phone_number"]])
-
+    # Get all categories from projects_data
+    categories = list(st.session_state["projects_data"].keys())
+    
+    # Create tabs dynamically based on categories
+    tabs = st.tabs([cat.upper() for cat in categories])
+    
+    # Create each tab with its data
+    for tab, category in zip(tabs, categories):
+        with tab:
+            df = st.session_state["projects_data"][category]
+            st.write(f"{status} {category.upper()} Applications: ")
+            st.dataframe(df[df["applicant_status"] == status][["name", "email", "gender", "phone_number"]])
