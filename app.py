@@ -83,10 +83,15 @@ if st.session_state["authentication_status"]:
 
         if st.session_state["first_run"]:
             ##################################################### Named Categories 
+            print("Downloading and updating latest data")
             projects_data = download_and_update_latest_data()
             st.session_state["projects_data"] = projects_data
             st.session_state["first_run"] = False
+        elif len(st.session_state["projects_data"]) == 0:
+            projects_data = download_and_update_latest_data()
+            st.session_state["projects_data"] = projects_data
         else:
+            print("Getting existing data")
             st.session_state["projects_data"] = get_existing_data(session_selector)
         st.sidebar.divider()
 
