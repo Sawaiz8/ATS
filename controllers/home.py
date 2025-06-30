@@ -81,15 +81,23 @@ def get_existing_data(session_name):
         dict: A dictionary where keys are category names and values are pandas DataFrames.
     """
 
-    projects_data = {}
+    
     session_path = f"./database/{session_name}/applicants_form_data"
-    if not os.path.exists(session_path):
-        return projects_data
+    resume_data_path = f"./database/{session_name}/applicants_resume"
+    if not os.path.exists(session_path) or not os.path.exists(resume_data_path):
+        projects_data = get_and_update_latest_data()
+    else:
+        projects_data = {}
+        for file in os.listdir(session_path):
+            if file.endswith(".csv"):
+                category_name = file.replace(".csv", "")
+                file_path = os.path.join(session_path, file)
+                df = pd.read_csv(file_path)
+                if len(df) > 0:
+                    data_exists = True    
+                projects_data[category_name] = df
 
-    for file in os.listdir(session_path):
-        if file.endswith(".csv"):
-            category_name = file.replace(".csv", "")
-            file_path = os.path.join(session_path, file)
-            df = pd.read_csv(file_path)
-            projects_data[category_name] = df
+        if data_exists and not os.path.exists(resume_data_path):
+            projects_data = get_and_update_latest_data()
+
     return projects_data
