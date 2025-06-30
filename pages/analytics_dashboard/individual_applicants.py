@@ -32,49 +32,47 @@ def applicants_page(category):
         df_applicant["name"],
         index=None,
     )
+    
     if applicant_dropdown is not None:
         current_applicant = df_applicant[df_applicant.name == applicant_dropdown]
         st.metric("Application Status", current_applicant["applicant_status"].values[0])
+
+        st.markdown("---")  # Separator line before contact details
+        st.subheader("Personal Details")  # Heading for contact details
         col_1, col_2, col_3= st.columns(3)
-        col_1.metric("Name", applicant_dropdown)
-        col_1.metric("NGO Experience", current_applicant["ngo_work"].values[0])
-        col_2.metric("Age", current_applicant["age"].values[0])
-        col_3.metric("Gender", current_applicant["gender"].values[0])
+        col_1.metric("Age", current_applicant["age"].values[0])
+        col_2.metric("Gender", current_applicant["gender"].values[0])
+        col_3.metric("NGO Experience", current_applicant["ngo_work"].values[0])
+        col_1.metric("Transport", current_applicant["transport"].values[0])
         current_occupation = current_applicant["occupation"].values[0]
         match current_occupation:
             case "Both":
                 col_2.metric("Occupation", "Student, Employed")
             case _:
                 col_2.metric("Occupation", current_occupation)
-
-
         col_3.metric("City", current_applicant["city"].values[0])
-
         st.metric("Institution", current_applicant["institute"].values[0])
-        st.metric("Transport", current_applicant["transport"].values[0])
+        
+        st.markdown("---")  # Separator line before contact details
+        st.subheader("Contact Details")  # Heading for contact details
+        col_a, col_b = st.columns(2)
+        col_a.metric("Personal", f"0{current_applicant['phone_number'].values[0]}")
+        col_a.metric("Instagram",  f"{current_applicant['insta_id'].values[0]}")
+        col_b.metric("LinkedIn",  f"{current_applicant['linkedin_id'].values[0]}")
+        st.markdown(f"***email***: {current_applicant['email'].values[0]}")
+        st.markdown(f"***Has Discord?***: {current_applicant['has_discord'].values[0]}")
 
-        with st.expander("Contact Details"):
-            col_a, col_b = st.columns(2)
-            col_a.metric("Personal", f"0{current_applicant['phone_number'].values[0]}")
-            col_a.metric("Instagram",  f"{current_applicant['insta_id'].values[0]}")
-            col_b.metric("LinkedIn",  f"{current_applicant['linkedin_id'].values[0]}")
-            st.markdown(f"***email***: {current_applicant['email'].values[0]}")
-            st.markdown(f"***Has Discord?***: {current_applicant['has_discord'].values[0]}")
-
+        st.markdown("---")  # Separator line before contact details
+        st.subheader("Question and Answers")  # Heading for contact details
         # Get columns not in renamed_columns list
         extra_columns = [col for col in df_applicant.columns if col not in renamed_columns + ['applicant_status', 'path_to_pdf']]
         
-        # Create rows of 3 columns each
-        for i in range(0, len(extra_columns), 3):
-            row_cols = st.columns(3)
-            
-            # Create containers for each column in the row
-            for j in range(3):
-                if i+j < len(extra_columns):
-                    col = extra_columns[i+j]
-                    container = row_cols[j].container(border=True, height=150)
-                    container.caption(col)
-                    container.markdown(current_applicant[col].values[0])
+        # Show each extra column sequentially in its own row
+        for col in extra_columns:
+            if col != "CV":
+                container = st.container(border=True)
+                container.caption(col)
+                container.markdown(current_applicant[col].values[0])
 
         pdf_source = current_applicant["path_to_pdf"].values[0]
 
