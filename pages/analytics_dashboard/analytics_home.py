@@ -38,6 +38,16 @@ def analytics_home(category):
         unemployed_metric.metric(label="Not Working", value=not_working)
         ngo_metric.metric(label="Have worked in NGO's", value=ngo_work)
 
+        # Create a download button for names, phone numbers, and emails for the category
+        contact_info = df_applicant[["name", "phone_number", "email"]]
+        csv_data = contact_info.to_csv(index=False)
+        st.download_button(
+            label=f"Download {category} Names, Phone Numbers, and Emails",
+            data=csv_data,
+            file_name=f"{category}_contacts.csv",
+            mime="text/csv"
+        )
+
     with tab2:
         graph_1, graph_2 = st.columns(spec=2, gap="large")
         # Graph Applicants by institute using st.bar_chart

@@ -43,17 +43,9 @@ class MongoDBManager:
 
     @db_connection
     async def upsert_volunteer_data(self, volunteer_data: Dict) -> None:
-        # Get the current max volunteer_id and increment by 1
-        max_volunteer = self.volunteer_data_collection.find_one(
-            sort=[("volunteer_id", -1)]
-        )
-        next_id = 1 if max_volunteer is None else max_volunteer["volunteer_id"] + 1
-        
-        # Set the auto-generated ID
-        volunteer_data["volunteer_id"] = next_id
-        
+        # Upsert using email as the primary key
         self.volunteer_data_collection.update_one(
-            {"volunteer_id": volunteer_data["volunteer_id"]},
+            {"email": volunteer_data["email"]},
             {"$set": volunteer_data},
             upsert=True
         )
