@@ -13,7 +13,6 @@ from utilities.mongo_db.streamlit_mongo_wrapper import get_all_session_names, ge
 
 load_dotenv()
 
-st.session_state["projects_data"] = {}
 
 credentials = {
     'usernames': {
@@ -31,6 +30,8 @@ authenticator = stauth.Authenticate(
     st.secrets['cookie']['expiry_days'],
     st.secrets['preauthorized']
 )
+
+
 
 def auth_page():
     name, st.session_state["authentication_status"], username = authenticator.login('main')
@@ -56,7 +57,6 @@ if st.session_state["authentication_status"]:
     header_1, header_2 = st.sidebar.columns(2)
     header_1.write("**دادرس**")
     header_2.caption("Daadras ATS")
-
     
     # Get a list of all sessions from mongo_store
     session_names = get_all_session_names()
@@ -73,11 +73,12 @@ if st.session_state["authentication_status"]:
     )
     access_button = st.sidebar.button("Access", type="primary")
     if access_button:
-        st.session_state["current_page"] = "applications"
+        st.session_state["current_page"] = "access_project"
     st.session_state["sessions"] = session_names
     st.session_state["project_sessions"] = session_names
 
-    if session_selector is not None and st.session_state["current_page"] == "applications":
+
+    if session_selector is not None and st.session_state["current_page"] == "access_project":
         st.session_state["current_session"] = get_session_data(session_selector)
         st.session_state["current_session_name"] = session_selector    
 
@@ -87,6 +88,7 @@ if st.session_state["authentication_status"]:
             st.session_state["projects_data"] = projects_data
             st.session_state["first_run"] = False
         else:
+            print("Getting existing data: ", session_selector)
             st.session_state["projects_data"] = get_existing_data(session_selector)
         st.sidebar.divider()
 
@@ -149,6 +151,9 @@ if st.session_state["authentication_status"]:
             elif interview_approved:
                 st.session_state["on_page"] = "Approved"
 
+
+
+
     st.sidebar.divider()
     st.sidebar.caption("HR")
     if st.sidebar.button(label="Session Management"):
@@ -163,7 +168,7 @@ if st.session_state["authentication_status"]:
         if len(page_type) > 1 and page_type[1] == "home":
             # Handle analytics home pages
             analytics_home(category=page_type[0].lower())
-        elif st.session_state["on_page"] in [cat.upper() for cat in st.session_state["projects_data"].keys()]:
+        elif "projects_data" in st.session_state and st.session_state["on_page"] in [cat.upper() for cat in st.session_state["projects_data"].keys()]:
             # Handle individual applicant pages
             applicants_page(category=st.session_state["on_page"].lower())
         else:

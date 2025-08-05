@@ -70,6 +70,8 @@ def download_and_update_latest_data():
         
     return projects_data
 
+
+@st.cache_data(ttl=300)
 def get_existing_data(session_name):
     """
     Loads the projects_data for a given session_name from existing CSV files.
