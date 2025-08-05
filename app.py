@@ -74,9 +74,7 @@ if st.session_state["authentication_status"]:
     access_button = st.sidebar.button("Access", type="primary")
     if access_button:
         st.session_state["current_page"] = "access_project"
-    st.session_state["sessions"] = session_names
     st.session_state["project_sessions"] = session_names
-
 
     if session_selector is not None and st.session_state["current_page"] == "access_project":
         st.session_state["current_session"] = get_session_data(session_selector)
