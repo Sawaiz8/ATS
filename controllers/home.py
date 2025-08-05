@@ -49,6 +49,7 @@ def get_and_update_latest_data(session_selector, category_name, url, dataframe_p
     else:
         return current_data
 
+@st.cache_data(ttl=60*5)
 def download_and_update_latest_data():
     session_catagory_data = st.session_state["current_session"]["categories"]
     session_selector = st.session_state["current_session"]["session_name"]

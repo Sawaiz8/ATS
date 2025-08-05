@@ -64,6 +64,7 @@ def hr_page():
             # Show loading spinner
             with st.spinner("Saving project..."):
                 save_project(new_session_name, categories_dict)
+                st.session_state["project_sessions"].append(new_session_name)
             st.success("Project created successfully")
             sleep(1.0)
             st.cache_data.clear()

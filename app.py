@@ -10,7 +10,7 @@ from pages.session_management.update_data import update_page
 from pages.home.Home import intro_page, home_page
 from controllers.home import download_and_update_latest_data, get_existing_data
 from utilities.mongo_db.streamlit_mongo_wrapper import get_all_session_names, get_session_data
-
+import os
 load_dotenv()
 
 
@@ -31,17 +31,12 @@ authenticator = stauth.Authenticate(
     st.secrets['preauthorized']
 )
 
-
-
 def auth_page():
     name, st.session_state["authentication_status"], username = authenticator.login('main')
     if st.session_state["authentication_status"]:
         st.rerun()
     elif st.session_state["authentication_status"] == False:
         st.error('Username/password is incorrect')
-
-if "first_run" not in st.session_state.keys():
-    st.session_state["first_run"] = True
     
 if st.session_state["authentication_status"]:
     logout_button = st.sidebar.button("Logout")
@@ -74,22 +69,16 @@ if st.session_state["authentication_status"]:
     access_button = st.sidebar.button("Access", type="primary")
     if access_button:
         st.session_state["current_page"] = "access_project"
-    st.session_state["sessions"] = session_names
     st.session_state["project_sessions"] = session_names
-
 
     if session_selector is not None and st.session_state["current_page"] == "access_project":
         st.session_state["current_session"] = get_session_data(session_selector)
         st.session_state["current_session_name"] = session_selector    
 
-        if st.session_state["first_run"]:
-            ##################################################### Named Categories 
-            projects_data = download_and_update_latest_data()
-            st.session_state["projects_data"] = projects_data
-            st.session_state["first_run"] = False
-        else:
-            print("Getting existing data: ", session_selector)
-            st.session_state["projects_data"] = get_existing_data(session_selector)
+
+        ##################################################### Named Categories 
+        projects_data = download_and_update_latest_data()
+        st.session_state["projects_data"] = projects_data
         st.sidebar.divider()
 
         home_button = st.sidebar.button(label="Home", use_container_width=True)
