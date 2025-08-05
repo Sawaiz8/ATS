@@ -42,7 +42,7 @@ def analytics_home(category):
         contact_info = df_applicant[["name", "phone_number", "email"]]
         csv_data = contact_info.to_csv(index=False)
         st.download_button(
-            label=f"Download {category} Names, Phone Numbers, and Emails",
+            label=f"Download {category} contact information",
             data=csv_data,
             file_name=f"{category}_contacts.csv",
             mime="text/csv"
