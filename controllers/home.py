@@ -29,24 +29,29 @@ def get_and_update_latest_data(session_selector, category_name, url, dataframe_p
             downloader.download_pdf(resume, file_path)
         latest_data.loc[latest_data.name == name, "path_to_pdf"] = file_path
 
-    # Compare and get differences
-    # Use latest data columns since it won't have applicant_status column, session_name column and
-    cols = [col for col in latest_data.columns]
-    diff = pd.concat([current_data[cols], latest_data[cols]]).drop_duplicates(keep=False)
-    if len(diff) > 0:
-        st.write("Diff found")
-        diff["applicant_status"] = "Under Review"
-        st.write(diff)
+    # Compare and get differences using email as primary key
+    email_col = 'email'  # or whatever your email column is named
+
+    if current_data.empty:
+        latest_data.to_csv(dataframe_path)
+        new_records = latest_data
+    else:
+        new_records = latest_data[~latest_data[email_col].isin(current_data[email_col])]
+
+    if len(new_records) > 0:
+        # st.write("New records found")
+        new_records["applicant_status"] = "Under Review"
+        # st.write(new_records)
+        
         # Update database
-        upsert_volunteers_data(diff, session_selector, category_name)
+        upsert_volunteers_data(new_records, session_selector, category_name)
         
         # Combine current and new data
-        updated_data = pd.concat([current_data, diff], ignore_index=True)
-        st.write(updated_data)
-        updated_data.to_csv(dataframe_path)
-        
+        updated_data = pd.concat([current_data, new_records], ignore_index=True)
+        updated_data.to_csv(dataframe_path)        
         return updated_data
     else:
+        current_data.to_csv(dataframe_path)
         return current_data
 
 @st.cache_data(ttl=60*5)
