@@ -13,6 +13,7 @@ def home_page():
     # Dynamically combine data from all categories
     app_data = pd.concat([data for category, data in st.session_state["projects_data"].items()])
     
+    
     tab1, tab2, tab3 = st.tabs(["🔎 Overview", "📈 Charts", "📍 Map"])
     with tab1:
         # Basic Queries for IT Metrics
@@ -38,6 +39,17 @@ def home_page():
         university_metric.metric(label="University Students", value=university_students)
         unemployed_metric.metric(label="Not Working", value=not_working)
         ngo_metric.metric(label="Have worked in NGO's", value=ngo_work)
+
+        # Create a download button for names, phone numbers, and emails for the category
+        contact_info = app_data[["name", "phone_number", "email"]]
+        csv_data = contact_info.to_csv(index=False)
+        st.download_button(
+            label=f"Download contact information for applicants",
+            data=csv_data,
+            file_name=f"{st.session_state["current_session_name"]}_contacts.csv",
+            mime="text/csv"
+        )
+
 
     with tab2:
         graph_1, graph_2 = st.columns(spec=2, gap="large")
