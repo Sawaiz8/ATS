@@ -43,10 +43,11 @@ def home_page():
         # Create a download button for names, phone numbers, and emails for the category
         contact_info = app_data[["name", "phone_number", "email"]]
         csv_data = contact_info.to_csv(index=False)
+        current_session_name = st.session_state["current_session_name"]
         st.download_button(
             label=f"Download contact information for applicants",
             data=csv_data,
-            file_name=f"{st.session_state["current_session_name"]}_contacts.csv",
+            file_name=f"{current_session_name}_contacts.csv",
             mime="text/csv"
         )
 
