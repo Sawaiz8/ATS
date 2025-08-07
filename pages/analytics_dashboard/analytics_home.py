@@ -10,7 +10,7 @@ load_dotenv()
 
 def analytics_home(category):
     # Read data from CSV file
-    df_applicant = st.session_state["projects_data"][category]
+    df_applicant = st.session_state["current_session_data"]["category_data"][category]
 
     tab1, tab2, tab3 = st.tabs(["🔎 Overview", "📈 Charts", "📍 Map"])
     with tab1:

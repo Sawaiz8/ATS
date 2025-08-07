@@ -12,7 +12,6 @@ def get_all_session_names():
 def get_session_data(session_name: str):
     return asyncio.run(mongo_store.get_session_data(session_name))
 
-
 def upsert_volunteers_data(df, session_name, category):
     for index, row in df.iterrows():
         # Get all columns that weren't renamed
@@ -88,7 +87,7 @@ def get_volunteer_data_as_csv(session_name: str, category: str):
                 flat_record[key] = value
 
         flat_record["applicant_status"] = volunteer["applicant_status"]
-            
+        
         flattened_data.append(flat_record)
     
     # Convert to DataFrame

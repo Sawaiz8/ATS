@@ -25,8 +25,8 @@ renamed_columns = [
 ]
 
 def applicants_page(category):
-    current_session_data = st.session_state["current_session"]
-    df_applicant = st.session_state["projects_data"][category]
+
+    df_applicant = st.session_state["current_session_data"]["category_data"][category]
     applicant_dropdown = st.selectbox(
         f"Search Individual **{category.upper()}** Applicants",
         df_applicant["name"],
@@ -93,30 +93,32 @@ def applicants_page(category):
         if accept_button:
             df_applicant.loc[df_applicant['name'] == name, ["applicant_status"]] = 'Accepted'
             st.toast('Applicant Accepted', icon="❗")
+            st.session_state["current_session_data"]["category_data"][category] = df_applicant
             st.session_state[f"{category}_data"] = df_applicant
-            df_applicant.to_csv(current_session_data["categories"][category]['dataframe_path'], index=False)
             asyncio.run(mongo_store.update_volunteer_status(name, email, 'Accepted'))
             st.write(df_applicant)
             st.rerun()
         elif reject_button:
             df_applicant.loc[df_applicant['name'] == name, ["applicant_status"]] = 'Rejected'
             st.toast('Applicant Rejected', icon="❗")
+            st.session_state["current_session_data"]["category_data"][category] = df_applicant
             st.session_state[f"{category}_data"] = df_applicant
-            df_applicant.to_csv(current_session_data["categories"][category]['dataframe_path'], index=False)
             asyncio.run(mongo_store.update_volunteer_status(name, email, 'Rejected'))
             st.write(df_applicant)
             st.rerun()
         elif schedule_interview_button:
             df_applicant.loc[df_applicant['name'] == name, ["applicant_status"]] = 'Interview_Scheduled'
+            st.toast('Interview scheduled', icon="❗")
             st.session_state[f"{category}_data"] = df_applicant
-            df_applicant.to_csv(current_session_data["categories"][category]['dataframe_path'], index=False)
+            st.session_state["current_session_data"]["category_data"][category] = df_applicant
             asyncio.run(mongo_store.update_volunteer_status(name, email, 'Interview_Scheduled'))
             st.write(df_applicant)
             st.rerun()
         elif approve_interview_button:
             df_applicant.loc[df_applicant['name'] == name, ["applicant_status"]] = 'Interview_Approved'
+            st.toast('Approve Interview', icon="❗")
             st.session_state[f"{category}_data"] = df_applicant
-            df_applicant.to_csv(current_session_data["categories"][category]['dataframe_path'], index=False)
+            st.session_state["current_session_data"]["category_data"][category] = df_applicant
             asyncio.run(mongo_store.update_volunteer_status(name, email, 'Interview_Approved'))
             st.write(df_applicant)
             st.rerun()
