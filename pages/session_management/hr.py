@@ -10,17 +10,6 @@ import asyncio
 
 def hr_page():
     st.title("Session Management")
-
-    # # Select existing project
-    # st.header("Select a Project")
-    # selected_project = st.selectbox("Choose a project", st.session_state["project_sessions"])
-
-    # if selected_project:
-    #     st.write(f"### {selected_project}")
-    #     search = f"./database/{selected_project}/applicants_form_data/*"
-    #     st.write("This project has the following files:")
-    #     for file in glob.glob(search):
-    #         st.write(f"- {file}")
     
     # Create new project
     st.header("Create a New Project")

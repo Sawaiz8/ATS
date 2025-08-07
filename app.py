@@ -8,7 +8,7 @@ from pages.interview_statuses_pages.interview_status import view_interview_statu
 from pages.session_management.hr import hr_page
 from pages.session_management.update_data import update_page
 from pages.home.Home import intro_page, home_page
-from controllers.home import download_and_update_latest_data, get_existing_data
+from controllers.home import download_and_update_latest_data
 from utilities.mongo_db.streamlit_mongo_wrapper import get_all_session_names, get_session_data
 import os
 load_dotenv()
@@ -69,16 +69,16 @@ if st.session_state["authentication_status"]:
     access_button = st.sidebar.button("Access", type="primary")
     if access_button:
         st.session_state["current_page"] = "access_project"
+    
     st.session_state["project_sessions"] = session_names
 
     if session_selector is not None and st.session_state["current_page"] == "access_project":
-        st.session_state["current_session"] = get_session_data(session_selector)
-        st.session_state["current_session_name"] = session_selector    
-
-
-        ##################################################### Named Categories 
-        projects_data = download_and_update_latest_data()
-        st.session_state["projects_data"] = projects_data
+        st.session_state["current_session_name"] = session_selector  
+        st.session_state["current_session_data"] = {
+            "session_information": get_session_data(session_selector),
+            "category_data": download_and_update_latest_data()
+        }
+        
         st.sidebar.divider()
 
         home_button = st.sidebar.button(label="Home", use_container_width=True)
@@ -87,7 +87,7 @@ if st.session_state["authentication_status"]:
             home_page()
         
         # Create columns dynamically based on number of categories
-        num_categories = len(st.session_state["projects_data"])
+        num_categories = len(st.session_state["current_session_data"]["category_data"])
         cols = st.sidebar.columns(num_categories, gap="small")
 
         # Dictionary to store expanders and buttons
@@ -95,7 +95,7 @@ if st.session_state["authentication_status"]:
         buttons = {}
 
         # Create expanders and buttons for each category
-        for i, (category, data) in enumerate(st.session_state["projects_data"].items()):
+        for i, (category, data) in enumerate(st.session_state["current_session_data"]["category_data"].items()):
             category_upper = category.upper()
             expanders[category] = cols[i].popover(category_upper, use_container_width=True)
             
@@ -123,7 +123,7 @@ if st.session_state["authentication_status"]:
 
         ##################################################### Named Categories #####################################################
         # Handle button clicks
-        for category, data in st.session_state["projects_data"].items():
+        for category, data in st.session_state["current_session_data"]["category_data"].items():
             if buttons[f"{category}_home"]:
                 st.session_state["on_page"] = f"{category.upper()}_home"
                 break
@@ -157,7 +157,7 @@ if st.session_state["authentication_status"]:
         if len(page_type) > 1 and page_type[1] == "home":
             # Handle analytics home pages
             analytics_home(category=page_type[0].lower())
-        elif "projects_data" in st.session_state and st.session_state["on_page"] in [cat.upper() for cat in st.session_state["projects_data"].keys()]:
+        elif "current_session_data" in st.session_state and st.session_state["on_page"] in [cat.upper() for cat in st.session_state["current_session_data"]["category_data"].keys()]:
             # Handle individual applicant pages
             applicants_page(category=st.session_state["on_page"].lower())
         else:

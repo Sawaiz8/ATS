@@ -11,7 +11,7 @@ def intro_page():
 def home_page():
 
     # Dynamically combine data from all categories
-    app_data = pd.concat([data for category, data in st.session_state["projects_data"].items()])
+    app_data = pd.concat([data for category, data in st.session_state["current_session_data"]["category_data"].items()])
     
     
     tab1, tab2, tab3 = st.tabs(["🔎 Overview", "📈 Charts", "📍 Map"])

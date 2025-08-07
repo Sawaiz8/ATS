@@ -28,7 +28,6 @@ def save_project(session_name, category_files):
             return
         
         makedirs(f"./database/{session_name}", exist_ok=True)
-        makedirs(f"./database/{session_name}/applicants_form_data", exist_ok=True)
         makedirs(f"./database/{session_name}/applicants_resume", exist_ok=True)
 
         dataframes = {}
@@ -54,7 +53,6 @@ def save_project(session_name, category_files):
             download_resumes_and_update_paths(df, session_name, category)
             df["applicant_status"] = "Under_Review"
             upsert_volunteers_data(df=df, session_name=session_name, category=category)
-            df.to_csv(f"./database/{session_name}/applicants_form_data/{category}.csv", index=False)
 
         session_data_mongo = json.load(open("database/schemas/session_data_schema.json"))
         session_data_mongo["session_name"] = session_name

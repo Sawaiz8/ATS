@@ -12,7 +12,6 @@ from utilities.mongo_db.streamlit_mongo_wrapper import upsert_volunteers_data
 def update_data(session_name, category_urls):
     downloader = GoogleDriveDownloader()
     os.makedirs(f"./database/{session_name}", exist_ok=True)
-    os.makedirs(f"./database/{session_name}/applicants_form_data", exist_ok=True)
     os.makedirs(f"./database/{session_name}/applicants_resume", exist_ok=True)
 
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -35,7 +34,6 @@ def update_data(session_name, category_urls):
                     latest_data = pd.read_csv(f"{temp_dir}/{category}_file.csv", dtype={'Phone Number': str})
                     latest_data = clean_applicants_dataframe(latest_data)
                     latest_data["applicant_status"] = "Under Review"
-                    latest_data.to_csv(f"./database/{session_name}/applicants_form_data/{category}_applicant_data.csv", index=False)
                     download_resumes(latest_data, session_name, category)
                     upsert_volunteers_data(df=latest_data, session_name=session_name, category=category)
 
