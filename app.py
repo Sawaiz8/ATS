@@ -153,13 +153,12 @@ if st.session_state["authentication_status"]:
     ##################################################### Named Categories #####################################################
     # Handle page navigation dynamically
     if st.session_state["on_page"] is not None:
-        page_type = st.session_state["on_page"].split("_")
-        if len(page_type) > 1 and page_type[1] == "home":
+        if st.session_state["on_page"].endswith("_home"):
             # Handle analytics home pages
-            analytics_home(category=page_type[0].lower())
+            analytics_home(category=st.session_state["on_page"][:-5].lower())
         elif "current_session_data" in st.session_state and st.session_state["on_page"] in [cat.upper() for cat in st.session_state["current_session_data"]["category_data"].keys()]:
             # Handle individual applicant pages
-            applicants_page(category=st.session_state["on_page"].lower())
+            applicants_page(category=st.session_state["on_page"][:-5].lower())
         else:
             # Handle other pages
             match st.session_state["on_page"]:

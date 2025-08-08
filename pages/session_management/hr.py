@@ -45,7 +45,7 @@ def hr_page():
                 
             if category_name and sheet_link:
                 # Convert name to lowercase and replace spaces with underscore
-                formatted_name = category_name.lower().replace(" ", "_")
+                formatted_name = category_name.strip().lower().replace(" ", "_")
                 categories_dict[formatted_name] = sheet_link
 
     if st.button("Save Project"):
