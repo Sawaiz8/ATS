@@ -13,13 +13,14 @@ class MongoDBManager:
         self.sessions_data_collection = None
 
     def connect(self):
-        # Connect to MongoDB
-        self.client = MongoClient(self.uri)
-        # Access the database
-        self.db = self.client[self.db_name]
-        self.students_data_collection = self.db["students"]
-        self.volunteer_data_collection = self.db["volunteers"]
-        self.sessions_data_collection = self.db["sessions"]
+        # Connect to MongoDB only if not already connected
+        if self.client is None:
+            self.client = MongoClient(self.uri)
+            # Access the database
+            self.db = self.client[self.db_name]
+            self.students_data_collection = self.db["students"]
+            self.volunteer_data_collection = self.db["volunteers"]
+            self.sessions_data_collection = self.db["sessions"]
         
     def disconnect(self)-> None:
         if self.client:
@@ -36,7 +37,8 @@ class MongoDBManager:
             try:
                 result = await func(self, *args, **kwargs)
             finally:
-                self.disconnect()
+                # Don't disconnect after each operation - let the client be reused
+                pass
             return result
         return wrapper
 
