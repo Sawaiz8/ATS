@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 from time import sleep
 from controllers.update_session_Data import update_data
+from controllers.home import get_session_data 
 
 def update_page():
     st.title("Update Session Data")
@@ -10,9 +11,10 @@ def update_page():
     if selected_project is not None:
         # Get categories from current session data
         category_urls = {}
-        
+         
+        session_information_data = get_session_data(selected_project)
         # Create input fields for each category
-        for category in st.session_state["current_session_data"]["category_data"].keys():
+        for category in session_information_data["categories"].keys():
             st.subheader(category.upper())
             category_urls[category] = st.text_input(f"Link to {category.upper()} Sheet")
 
